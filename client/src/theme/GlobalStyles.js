@@ -1,4 +1,4 @@
-import { createGlobalStyle } from 'styled-components'
+import { createGlobalStyle } from "styled-components";
 const GlobalStyles = createGlobalStyle`
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 16px; -webkit-font-smoothing: antialiased; }
@@ -34,5 +34,5 @@ const GlobalStyles = createGlobalStyle`
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: ${({ theme }) => theme.colors.bg}; }
   ::-webkit-scrollbar-thumb { background: ${({ theme }) => theme.colors.border}; border-radius: 3px; }
-`
-export default GlobalStyles
+`;
+export default GlobalStyles;

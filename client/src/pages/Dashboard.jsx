@@ -1,55 +1,77 @@
-import { useState, useEffect } from 'react'
-import styled from 'styled-components'
-import { useAuth } from '../hooks/useAuth'
-import { SYMBOLS } from '../theme'
-import api from '../utils/api'
-import ProfileSummary     from '../components/dashboard/ProfileSummary'
-import ConnectionsList    from '../components/dashboard/ConnectionsList'
-import NudgesFeed         from '../components/dashboard/NudgesFeed'
-import AddConnectionModal from '../components/dashboard/AddConnectionModal'
+import { useState, useEffect } from "react";
+import styled from "styled-components";
+import { useAuth } from "../hooks/useAuth";
+import { SYMBOLS } from "../theme";
+import api from "../utils/api";
+import ProfileSummary from "../components/dashboard/ProfileSummary";
+import ConnectionsList from "../components/dashboard/ConnectionsList";
+import NudgesFeed from "../components/dashboard/NudgesFeed";
+import AddConnectionModal from "../components/dashboard/AddConnectionModal";
 
 export default function Dashboard() {
-  const { token, user, logout } = useAuth()
-  const [profile,     setProfile]     = useState(null)
-  const [connections, setConnections] = useState([])
-  const [forecasts,   setForecasts]   = useState({})
-  const [modalOpen,   setModalOpen]   = useState(false)
-  const [loading,     setLoading]     = useState(true)
-  const [error,       setError]       = useState(null)
+  const { token, user, logout } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [connections, setConnections] = useState([]);
+  const [forecasts, setForecasts] = useState({});
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => { loadDashboard() }, [])
+  useEffect(() => {
+    loadDashboard();
+  }, []);
 
   async function loadDashboard() {
-    setLoading(true)
+    setLoading(true);
     try {
       const [profileData, connectionsData] = await Promise.all([
-        api.get('/profile', token),
-        api.get('/connections', token)
-      ])
-      setProfile(profileData)
-      setConnections(connectionsData)
+        api.get("/profile", token),
+        api.get("/connections", token),
+      ]);
+      setProfile(profileData);
+      setConnections(connectionsData);
       if (connectionsData.length) {
-        const results = await Promise.all(connectionsData.map(c =>
-          api.get(`/forecast/${c._id}`, token).then(f => ({ id: c._id, data: f }))
-        ))
-        const map = {}
-        results.forEach(({ id, data }) => { map[id] = data })
-        setForecasts(map)
+        const results = await Promise.all(
+          connectionsData.map((c) =>
+            api
+              .get(`/forecast/${c._id}`, token)
+              .then((f) => ({ id: c._id, data: f })),
+          ),
+        );
+        const map = {};
+        results.forEach(({ id, data }) => {
+          map[id] = data;
+        });
+        setForecasts(map);
       }
-    } catch (err) { setError(err.message) } finally { setLoading(false) }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function handleConnectionAdded() { setModalOpen(false); await loadDashboard() }
+  async function handleConnectionAdded() {
+    setModalOpen(false);
+    await loadDashboard();
+  }
   async function handleDeleteConnection(connectionId) {
     try {
-      await api.delete(`/connections/${connectionId}`, token)
-      setConnections(prev => prev.filter(c => c._id !== connectionId))
-      setForecasts(prev => { const next = { ...prev }; delete next[connectionId]; return next })
-    } catch (err) { setError(err.message) }
+      await api.delete(`/connections/${connectionId}`, token);
+      setConnections((prev) => prev.filter((c) => c._id !== connectionId));
+      setForecasts((prev) => {
+        const next = { ...prev };
+        delete next[connectionId];
+        return next;
+      });
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
-  if (loading) return <LoadingPage>{SYMBOLS.earth} Loading your profile...</LoadingPage>
-  if (error)   return <LoadingPage>Something went wrong: {error}</LoadingPage>
+  if (loading)
+    return <LoadingPage>{SYMBOLS.earth} Loading your profile...</LoadingPage>;
+  if (error) return <LoadingPage>Something went wrong: {error}</LoadingPage>;
 
   return (
     <Page>
@@ -71,57 +93,80 @@ export default function Dashboard() {
           <EmptyState>
             <EmptyGlyph>{SYMBOLS.star}</EmptyGlyph>
             <EmptyText>No connections yet.</EmptyText>
-            <EmptySubtext>Add someone to generate a compatibility report and seasonal forecast.</EmptySubtext>
-            <AddButton onClick={() => setModalOpen(true)}>Add your first connection</AddButton>
+            <EmptySubtext>
+              Add someone to generate a compatibility report and seasonal
+              forecast.
+            </EmptySubtext>
+            <AddButton onClick={() => setModalOpen(true)}>
+              Add your first connection
+            </AddButton>
           </EmptyState>
         ) : (
-          <ConnectionsList connections={connections} forecasts={forecasts} onDelete={handleDeleteConnection} token={token} />
+          <ConnectionsList
+            connections={connections}
+            forecasts={forecasts}
+            onDelete={handleDeleteConnection}
+            token={token}
+          />
         )}
       </Content>
-      {modalOpen && <AddConnectionModal token={token} onAdded={handleConnectionAdded} onClose={() => setModalOpen(false)} />}
+      {modalOpen && (
+        <AddConnectionModal
+          token={token}
+          onAdded={handleConnectionAdded}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </Page>
-  )
+  );
 }
 
-const Page         = styled.div`min-height: 100vh; background: ${({ theme }) => theme.colors.bg};`
-const TopBar       = styled.div`
+const Page = styled.div`
+  min-height: 100vh;
+  background: ${({ theme }) => theme.colors.bg};
+`;
+const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ theme }) => `${theme.spacing.lg} ${theme.spacing['2xl']}`};
+  padding: ${({ theme }) => `${theme.spacing.lg} ${theme.spacing["2xl"]}`};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   @media (max-width: 480px) {
     padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
   }
-`
-const Logo         = styled.div`
+`;
+const Logo = styled.div`
   font-family: ${({ theme }) => theme.fonts.display};
   font-size: ${({ theme }) => theme.fontSizes.xl};
   color: ${({ theme }) => theme.colors.accent};
-`
-const TopBarRight  = styled.div`
+`;
+const TopBarRight = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.lg};
-`
-const UserName     = styled.span`
+`;
+const UserName = styled.span`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textSecondary};
-  @media (max-width: 480px) { display: none; }
-`
+  @media (max-width: 480px) {
+    display: none;
+  }
+`;
 const LogoutButton = styled.button`
   font-size: ${({ theme }) => theme.fontSizes.xs};
   color: ${({ theme }) => theme.colors.textMuted};
   min-height: unset;
-  &:hover { color: ${({ theme }) => theme.colors.textSecondary}; }
-`
-const Content      = styled.main`
+  &:hover {
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
+`;
+const Content = styled.main`
   max-width: 800px;
   margin: 0 auto;
-  padding: ${({ theme }) => theme.spacing['2xl']};
+  padding: ${({ theme }) => theme.spacing["2xl"]};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing['2xl']};
+  gap: ${({ theme }) => theme.spacing["2xl"]};
   @media (max-width: 768px) {
     padding: ${({ theme }) => theme.spacing.xl};
   }
@@ -129,17 +174,17 @@ const Content      = styled.main`
     padding: ${({ theme }) => theme.spacing.lg};
     gap: ${({ theme }) => theme.spacing.xl};
   }
-`
+`;
 const SectionHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`
-const SectionTitle  = styled.h2`
+`;
+const SectionTitle = styled.h2`
   font-size: ${({ theme }) => theme.fontSizes.xl};
   color: ${({ theme }) => theme.colors.textPrimary};
-`
-const AddButton     = styled.button`
+`;
+const AddButton = styled.button`
   padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.lg}`};
   background: transparent;
   color: ${({ theme }) => theme.colors.accent};
@@ -148,23 +193,44 @@ const AddButton     = styled.button`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   transition: all ${({ theme }) => theme.transitions.fast};
   white-space: nowrap;
-  &:hover { background: ${({ theme }) => theme.colors.accentDim}; color: ${({ theme }) => theme.colors.accentLight}; }
-`
-const EmptyState    = styled.div`
+  &:hover {
+    background: ${({ theme }) => theme.colors.accentDim};
+    color: ${({ theme }) => theme.colors.accentLight};
+  }
+`;
+const EmptyState = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: ${({ theme }) => theme.spacing['3xl']};
+  padding: ${({ theme }) => theme.spacing["3xl"]};
   gap: ${({ theme }) => theme.spacing.md};
   background: ${({ theme }) => theme.colors.bgCard};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.xl};
   @media (max-width: 480px) {
-    padding: ${({ theme }) => theme.spacing['2xl']} ${({ theme }) => theme.spacing.lg};
+    padding: ${({ theme }) => theme.spacing["2xl"]}
+      ${({ theme }) => theme.spacing.lg};
   }
-`
-const EmptyGlyph    = styled.div`font-size: 2rem; color: ${({ theme }) => theme.colors.accentDim};`
-const EmptyText     = styled.p`font-size: ${({ theme }) => theme.fontSizes.lg}; color: ${({ theme }) => theme.colors.textPrimary};`
-const EmptySubtext  = styled.p`font-size: ${({ theme }) => theme.fontSizes.sm}; color: ${({ theme }) => theme.colors.textMuted}; max-width: 300px;`
-const LoadingPage   = styled.div`min-height: 100vh; display: flex; align-items: center; justify-content: center; color: ${({ theme }) => theme.colors.textMuted}; font-size: ${({ theme }) => theme.fontSizes.lg};`
+`;
+const EmptyGlyph = styled.div`
+  font-size: 2rem;
+  color: ${({ theme }) => theme.colors.accentDim};
+`;
+const EmptyText = styled.p`
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+  color: ${({ theme }) => theme.colors.textPrimary};
+`;
+const EmptySubtext = styled.p`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textMuted};
+  max-width: 300px;
+`;
+const LoadingPage = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+`;

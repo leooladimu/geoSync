@@ -29,14 +29,14 @@ geoSync uses this data to generate a **Biophysical Profile** for each user, then
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React, React Router, Styled Components |
-| Backend | Node.js, Express |
-| Database | MongoDB, Mongoose |
-| Auth | JWT, bcryptjs |
-| Geocoding | Nominatim (OpenStreetMap) |
-| State | useState / props |
+| Layer     | Technology                             |
+| --------- | -------------------------------------- |
+| Frontend  | React, React Router, Styled Components |
+| Backend   | Node.js, Express                       |
+| Database  | MongoDB, Mongoose                      |
+| Auth      | JWT, bcryptjs                          |
+| Geocoding | Nominatim (OpenStreetMap)              |
+| State     | useState / props                       |
 
 ---
 
@@ -126,12 +126,14 @@ The client runs on `http://localhost:5173` by default.
 ## API Reference
 
 ### Auth
+
 ```
 POST   /api/auth/register
 POST   /api/auth/login
 ```
 
 ### Profile
+
 ```
 GET    /api/profile
 POST   /api/profile
@@ -139,6 +141,7 @@ PUT    /api/profile
 ```
 
 ### Connections
+
 ```
 GET    /api/connections
 GET    /api/connections/:id
@@ -147,18 +150,21 @@ DELETE /api/connections/:id
 ```
 
 ### Compatibility
+
 ```
 GET    /api/compatibility/:connectionId
 POST   /api/compatibility/regenerate/:connectionId
 ```
 
 ### Forecast
+
 ```
 GET    /api/forecast/:connectionId
 GET    /api/forecast/:connectionId/range?from=YYYY-MM&to=YYYY-MM
 ```
 
 ### Nudges
+
 ```
 GET    /api/nudges
 PATCH  /api/nudges/:id/dismiss
@@ -180,11 +186,11 @@ Handles southern hemisphere season inversion.
 
 Takes two derived profiles and scores them across three dimensions:
 
-| Dimension | Weight | What it measures |
-|---|---|---|
-| Chronotype Sync | 30% | Daily energy peak alignment |
-| Stress Response | 40% | Conflict pattern compatibility |
-| Seasonal Rhythm | 30% | Vulnerability window overlap |
+| Dimension       | Weight | What it measures               |
+| --------------- | ------ | ------------------------------ |
+| Chronotype Sync | 30%    | Daily energy peak alignment    |
+| Stress Response | 40%    | Conflict pattern compatibility |
+| Seasonal Rhythm | 30%    | Vulnerability window overlap   |
 
 Stress response is weighted highest because it governs behavior during conflict — the moments when people have the least capacity to compensate for incompatibility.
 
@@ -196,13 +202,13 @@ Computes energy levels (`peak`, `rising`, `dipping`, `low`) for each profile acr
 
 Detects five behavioral pattern categories:
 
-| Category | Trigger |
-|---|---|
-| `withdrawal` | Freeze profile entering vulnerability window |
-| `intensity-seeking` | Low dopamine baseline during vulnerability window |
-| `over-commitment` | High-light profile in peak summer months |
-| `scarcity-lock` | High-latitude freeze profile (loyalty vs. obligation check) |
-| `optimism-bias` | High-light lark profile in spring surge |
+| Category            | Trigger                                                     |
+| ------------------- | ----------------------------------------------------------- |
+| `withdrawal`        | Freeze profile entering vulnerability window                |
+| `intensity-seeking` | Low dopamine baseline during vulnerability window           |
+| `over-commitment`   | High-light profile in peak summer months                    |
+| `scarcity-lock`     | High-latitude freeze profile (loyalty vs. obligation check) |
+| `optimism-bias`     | High-light lark profile in spring surge                     |
 
 Nudges are deduplicated — one active nudge per category per connection at a time.
 
@@ -212,17 +218,17 @@ Nudges are deduplicated — one active nudge per category per connection at a ti
 
 geoSync uses archaic Unicode glyphs throughout the UI as semantic markers, not decoration:
 
-| Glyph | Unicode | Meaning |
-|---|---|---|
-| ♁ | U+2641 | Earth — the app's core symbol |
-| ⊕ | U+2295 | Earth (alt) — used on review/completion screens |
-| ☉ | U+2609 | Sun — high-light profile, chronotype |
-| ☽ | U+263D | Crescent moon — low-light profile |
-| ♈ | U+2648 | Spring equinox |
-| ♋ | U+264B | Summer solstice |
-| ♎ | U+264E | Autumn equinox |
-| ♑ | U+2651 | Winter solstice |
-| ✦ | U+2726 | Divider / decorative |
+| Glyph | Unicode | Meaning                                         |
+| ----- | ------- | ----------------------------------------------- |
+| ♁     | U+2641  | Earth — the app's core symbol                   |
+| ⊕     | U+2295  | Earth (alt) — used on review/completion screens |
+| ☉     | U+2609  | Sun — high-light profile, chronotype            |
+| ☽     | U+263D  | Crescent moon — low-light profile               |
+| ♈    | U+2648  | Spring equinox                                  |
+| ♋    | U+264B  | Summer solstice                                 |
+| ♎    | U+264E  | Autumn equinox                                  |
+| ♑    | U+2651  | Winter solstice                                 |
+| ✦     | U+2726  | Divider / decorative                            |
 
 The solstice and equinox glyphs serve as season identifiers throughout the app — ♑ next to a winter-born profile, ♈ next to a spring-born one. They are technically zodiacal in origin but predate pop astrology and mark real astronomical moments.
 
@@ -233,6 +239,7 @@ The solstice and equinox glyphs serve as season identifiers throughout the app �
 Birth location is geocoded at profile creation via the [Nominatim OpenStreetMap API](https://nominatim.openstreetmap.org/). Coordinates are stored permanently in MongoDB.
 
 **Nominatim requirements:**
+
 - Maximum 1 request per second
 - A valid `User-Agent` header with contact information is required — update `geocode.service.js` before deploying
 - No licensing restrictions on stored coordinate data
