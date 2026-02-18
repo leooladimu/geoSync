@@ -1,0 +1,66 @@
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build outputs
+dist/
+client/dist/
+build/
+out/
+.vite/
+public/build/
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.production
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.iml
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Caches
+.cache/
+.tmp/
+.parcel-cache/
+node_repl_history
+
+# Framework-specific
+.next/
+.svelte-kit/
+storybook-static/
+
+# TypeScript
+*.tsbuildinfo
+
+# Python virtualenvs
+venv/
+env/
+ENV/
+.venv/
+
+# Misc
+*.pid
+*.seed
+*.gz
