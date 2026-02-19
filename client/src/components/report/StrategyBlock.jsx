@@ -18,7 +18,7 @@ export default function StrategyBlock({ dimensions, name }) {
       <Strategies>
         {dimensions.chronotype?.strategy && (
           <StrategyItem>
-            <StrategyGlyph>☉</StrategyGlyph>
+            <StrategyGlyph>☉\uFE0E</StrategyGlyph>
             <StrategyText>
               <StrategyLabel>Daily Rhythm</StrategyLabel>
               {dimensions.chronotype.strategy}

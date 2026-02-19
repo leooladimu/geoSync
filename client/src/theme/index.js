@@ -1,19 +1,20 @@
 export const SYMBOLS = {
-  earth: "♁",
-  earthAlt: "⊕",
-  sun: "☉",
-  moon: "☽",
-  spring: "♈",
-  summer: "♋",
-  fall: "♎",
-  winter: "♑",
-  star: "✦",
+  earth: "♁\uFE0E",
+  earthAlt: "⊕\uFE0E",
+  sun: "☉\uFE0E",
+  moon: "☽\uFE0E",
+  spring: "♈\uFE0E",
+  summer: "♋\uFE0E",
+  fall: "♎\uFE0E",
+  winter: "♑\uFE0E",
+  star: "✦\uFE0E",
 };
+
 export const SEASON_SYMBOLS = {
-  spring: "♈",
-  summer: "♋",
-  fall: "♎",
-  winter: "♑",
+  spring: "♈\uFE0E",
+  summer: "♋\uFE0E",
+  fall: "♎\uFE0E",
+  winter: "♑\uFE0E",
 };
 
 export const bp = {

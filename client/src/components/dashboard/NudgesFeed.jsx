@@ -4,11 +4,11 @@ import { SYMBOLS } from "../../theme";
 import api from "../../utils/api";
 
 const CATEGORY_META = {
-  withdrawal: { glyph: "☽", label: "Withdrawal pattern" },
-  "intensity-seeking": { glyph: "☉", label: "Intensity seeking" },
-  "over-commitment": { glyph: "♈", label: "Over-commitment risk" },
-  "scarcity-lock": { glyph: "♁", label: "Scarcity pattern" },
-  "optimism-bias": { glyph: "♋", label: "Optimism bias" },
+  withdrawal: { glyph: "☽\uFE0E", label: "Withdrawal pattern" },
+  "intensity-seeking": { glyph: "☉\uFE0E", label: "Intensity seeking" },
+  "over-commitment": { glyph: "♈\uFE0E", label: "Over-commitment risk" },
+  "scarcity-lock": { glyph: "♁\uFE0E", label: "Scarcity pattern" },
+  "optimism-bias": { glyph: "♋\uFE0E", label: "Optimism bias" },
 };
 
 export default function NudgesFeed({ token }) {
