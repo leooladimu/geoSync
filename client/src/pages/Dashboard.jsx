@@ -77,8 +77,9 @@ export default function Dashboard() {
   return (
     <Page>
       <TopBar>
-        <Logo>{SYMBOLS.earth} geoSync</Logo>
+        <Logo to="/">{SYMBOLS.earth} geoSync</Logo>
         <TopBarRight>
+          <ScienceLink to="/science">The Science</ScienceLink>
           <UserName>{user?.name}</UserName>
           <LogoutButton onClick={logout}>Sign out</LogoutButton>
         </TopBarRight>
@@ -139,10 +140,21 @@ const TopBar = styled.div`
     padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
   }
 `;
-const Logo = styled.div`
+const Logo = styled(Link)`
   font-family: ${({ theme }) => theme.fonts.display};
   font-size: ${({ theme }) => theme.fontSizes.xl};
   color: ${({ theme }) => theme.colors.accent};
+  &:hover {
+    color: ${({ theme }) => theme.colors.accentLight};
+  }
+`;
+const ScienceLink = styled(Link)`
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: ${({ theme }) => theme.colors.textMuted};
+  letter-spacing: 0.05em;
+  &:hover {
+    color: ${({ theme }) => theme.colors.accent};
+  }
 `;
 const TopBarRight = styled.div`
   display: flex;
@@ -244,6 +256,10 @@ const ScienceFooter = styled.div`
   border-top: 1px solid ${({ theme }) => theme.colors.border};
   font-size: ${({ theme }) => theme.fontSizes.xs};
   color: ${({ theme }) => theme.colors.textMuted};
-  a { color: ${({ theme }) => theme.colors.textMuted}; 
-    &:hover { color: ${({ theme }) => theme.colors.accent}; } }
+  a {
+    color: ${({ theme }) => theme.colors.textMuted};
+    &:hover {
+      color: ${({ theme }) => theme.colors.accent};
+    }
+  }
 `;
