@@ -7,6 +7,7 @@ import ProfileSummary from "../components/dashboard/ProfileSummary";
 import ConnectionsList from "../components/dashboard/ConnectionsList";
 import NudgesFeed from "../components/dashboard/NudgesFeed";
 import AddConnectionModal from "../components/dashboard/AddConnectionModal";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const { token, user, logout } = useAuth();
@@ -109,6 +110,9 @@ export default function Dashboard() {
             token={token}
           />
         )}
+        <ScienceFooter>
+          <Link to="/science">The science behind geoSync {SYMBOLS.star}</Link>
+        </ScienceFooter>
       </Content>
       {modalOpen && (
         <AddConnectionModal
@@ -233,4 +237,13 @@ const LoadingPage = styled.div`
   justify-content: center;
   color: ${({ theme }) => theme.colors.textMuted};
   font-size: ${({ theme }) => theme.fontSizes.lg};
+`;
+const ScienceFooter = styled.div`
+  text-align: center;
+  padding-top: ${({ theme }) => theme.spacing.xl};
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: ${({ theme }) => theme.colors.textMuted};
+  a { color: ${({ theme }) => theme.colors.textMuted}; 
+    &:hover { color: ${({ theme }) => theme.colors.accent}; } }
 `;

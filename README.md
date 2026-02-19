@@ -95,19 +95,48 @@ cd ../client && npm install
 
 ### Environment Variables
 
-Create `/server/.env`:
+This project uses a small set of environment variables. Keep secrets (database URIs, JWT secrets) server-side only. Client variables must be prefixed with `VITE_` to be embedded by Vite and are visible in the browser.
+
+Server (create `/server/.env` locally or set as host config vars):
 
 ```env
+# MongoDB connection (local or Atlas)
 MONGO_URI=mongodb://localhost:27017/geosync
-JWT_SECRET=your_secret_here
+
+# JWT signing secret — DO NOT commit this
+JWT_SECRET=change_this_secret
+
+# Optional: port the server listens on (defaults to 5000)
 PORT=5000
 ```
 
-Create `/client/.env`:
+Client (create `/client/.env` locally or set in your static host's build env):
 
 ```env
+# Base URL for API requests from the browser (must be an absolute URL in prod)
 VITE_API_URL=http://localhost:5000/api
 ```
+
+Example production values:
+
+- `MONGO_URI`: `mongodb+srv://<user>:<password>@cluster0.mongodb.net/geosync?retryWrites=true&w=majority`
+- `JWT_SECRET`: a long random string (rotate if accidentally committed)
+- `VITE_API_URL`: `https://api.yourdomain.com/api` or the Render/Railway URL
+
+Where to set these in popular hosts:
+
+- Vercel (frontend): Project → Settings → Environment Variables (set `VITE_*` keys for Production)
+- Render (backend): Service → Environment → Environment Variables (set `MONGO_URI`, `JWT_SECRET`, `PORT`)
+- Netlify: Site settings → Build & deploy → Environment → Environment variables
+- Railway: Project → Variables
+- GitHub Actions: Repository Settings → Secrets & variables → Actions (use these when running the build step)
+
+Security notes:
+
+- Never put private keys, DB passwords, or JWT secrets into `client/.env` or any `VITE_` variable — anything prefixed `VITE_` is bundled into the client and public.
+- If you rotate a secret (e.g. `JWT_SECRET`), redeploy the server and invalidate existing tokens if relevant.
+- If you accidentally commit secrets, remove them from git history and rotate the secrets immediately.
+
 
 ### Running Locally
 

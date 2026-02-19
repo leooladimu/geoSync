@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import CompatibilityReport from "./pages/CompatibilityReport";
+import Science from "./pages/Science";
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/science" element={<Science />} />
           <Route
             path="/onboarding"
             element={
