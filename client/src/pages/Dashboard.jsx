@@ -85,7 +85,13 @@ export default function Dashboard() {
         </TopBarRight>
       </TopBar>
       <Content>
-        {profile && <ProfileSummary profile={profile} />}
+        {profile && (
+          <ProfileSummary
+            profile={profile}
+            token={token}
+            onProfileUpdated={setProfile}
+          />
+        )}
         <NudgesFeed token={token} />
         <SectionHeader>
           <SectionTitle>Your Connections</SectionTitle>

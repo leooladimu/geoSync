@@ -4,6 +4,16 @@ const SeasonalForecast = require("../models/seasonalForecast.model");
 const { derive } = require("../services/bioProfile.service");
 const { generateRange } = require("../services/forecast.service");
 
+function mergeCalibration(derived, userAdjustments) {
+  if (!userAdjustments) return derived;
+  return {
+    ...derived,
+    chronotype: userAdjustments.chronotype || derived.chronotype,
+    stressBaseline: userAdjustments.stressBaseline || derived.stressBaseline,
+    socialSeason: userAdjustments.socialSeason || derived.socialSeason,
+  };
+}
+
 async function resolveBothProfiles(connection, ownerUserId) {
   const ownerProfile = await BioProfile.findOne({ userId: ownerUserId });
   if (!ownerProfile) throw new Error("Owner profile not found");
@@ -11,7 +21,7 @@ async function resolveBothProfiles(connection, ownerUserId) {
   if (connection.connectedUserId) {
     const pp = await BioProfile.findOne({ userId: connection.connectedUserId });
     if (!pp) throw new Error("Partner profile not found");
-    partnerDerived = pp.derived;
+    partnerDerived = mergeCalibration(pp.derived, pp.userAdjustments);
   } else {
     const { dob, birthLocation, survey } = connection.manualProfile;
     partnerDerived = derive(
@@ -21,7 +31,11 @@ async function resolveBothProfiles(connection, ownerUserId) {
       survey || {},
     );
   }
-  return { ownerDerived: ownerProfile.derived, partnerDerived };
+  const ownerEffective = mergeCalibration(
+    ownerProfile.derived,
+    ownerProfile.userAdjustments,
+  );
+  return { ownerDerived: ownerEffective, partnerDerived };
 }
 
 async function getForecast(req, res) {

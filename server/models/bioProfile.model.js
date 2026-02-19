@@ -96,7 +96,25 @@ const bioProfileSchema = new mongoose.Schema(
     birthLocation: { type: birthLocationSchema, required: true },
     survey: { type: surveySchema, required: true },
     derived: { type: derivedSchema, required: true },
+    userAdjustments: {
+      chronotype: {
+        type: String,
+        enum: ["lark", "owl", "neutral"],
+        default: null,
+      },
+      stressBaseline: {
+        type: String,
+        enum: ["freeze", "expand", "fight-flight"],
+        default: null,
+      },
+      socialSeason: {
+        type: String,
+        enum: ["spring", "summer", "fall", "winter"],
+        default: null,
+      },
+    },
   },
+
   { timestamps: true },
 );
 

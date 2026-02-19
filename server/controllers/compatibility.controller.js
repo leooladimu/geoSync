@@ -4,6 +4,16 @@ const BioProfile = require("../models/bioProfile.model");
 const { derive } = require("../services/bioProfile.service");
 const { generate } = require("../services/compatibility.service");
 
+function mergeCalibration(derived, userAdjustments) {
+  if (!userAdjustments) return derived;
+  return {
+    ...derived,
+    chronotype: userAdjustments.chronotype || derived.chronotype,
+    stressBaseline: userAdjustments.stressBaseline || derived.stressBaseline,
+    socialSeason: userAdjustments.socialSeason || derived.socialSeason,
+  };
+}
+
 async function getReport(req, res) {
   try {
     const connection = await Connection.findOne({
@@ -40,7 +50,7 @@ async function regenerateReport(req, res) {
       });
       if (!pp)
         return res.status(400).json({ error: "Partner profile missing" });
-      partnerDerived = pp.derived;
+      partnerDerived = mergeCalibration(pp.derived, pp.userAdjustments);
     } else {
       const { dob, birthLocation, survey } = connection.manualProfile;
       partnerDerived = derive(
@@ -50,7 +60,11 @@ async function regenerateReport(req, res) {
         survey || {},
       );
     }
-    const report = generate(ownerProfile.derived, partnerDerived);
+    const ownerEffective = mergeCalibration(
+      ownerProfile.derived,
+      ownerProfile.userAdjustments,
+    );
+    const report = generate(ownerEffective, partnerDerived);
     const updated = await CompatibilityReport.findByIdAndUpdate(
       connection.compatibilityReportId,
       {

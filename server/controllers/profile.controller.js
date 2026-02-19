@@ -52,4 +52,24 @@ async function updateProfile(req, res) {
   }
 }
 
-module.exports = { createProfile, getMyProfile, updateProfile };
+async function updateCalibration(req, res) {
+  try {
+    const { userAdjustments } = req.body;
+    const profile = await BioProfile.findOneAndUpdate(
+      { userId: req.user._id },
+      { userAdjustments },
+      { new: true },
+    );
+    if (!profile) return res.status(404).json({ error: "Profile not found" });
+    res.json(profile);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+module.exports = {
+  createProfile,
+  getMyProfile,
+  updateProfile,
+  updateCalibration,
+};

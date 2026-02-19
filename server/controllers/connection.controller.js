@@ -28,6 +28,16 @@ async function getConnection(req, res) {
   }
 }
 
+function mergeCalibration(derived, userAdjustments) {
+  if (!userAdjustments) return derived;
+  return {
+    ...derived,
+    chronotype: userAdjustments.chronotype || derived.chronotype,
+    stressBaseline: userAdjustments.stressBaseline || derived.stressBaseline,
+    socialSeason: userAdjustments.socialSeason || derived.socialSeason,
+  };
+}
+
 async function createConnection(req, res) {
   try {
     const { type, manualProfile, connectedUserId } = req.body;
@@ -46,24 +56,21 @@ async function createConnection(req, res) {
         return res
           .status(400)
           .json({ error: "Partner has not completed their profile yet" });
-      partnerDerived = partnerProfile.derived;
+      partnerDerived = mergeCalibration(
+        partnerProfile.derived,
+        partnerProfile.userAdjustments,
+      );
     } else {
       const { dob, birthLocation, survey } = manualProfile;
       const { lat, lng } = await geocodeBirthLocation(birthLocation);
-      partnerDerived = derive(
-        dob,
-        lat,
-        lng,
-        survey || {
-          stressResponse: "expand",
-          openness: "situational",
-          socialSeason: "summer",
-          conflictStyle: "process-first",
-        },
-      );
+      partnerDerived = derive(dob, lat, lng, survey);
       manualProfile.birthLocation = { ...birthLocation, lat, lng };
     }
-    const report = generate(ownerProfile.derived, partnerDerived);
+    const ownerEffective = mergeCalibration(
+      ownerProfile.derived,
+      ownerProfile.userAdjustments,
+    );
+    const report = generate(ownerEffective, partnerDerived);
     const savedReport = await CompatibilityReport.create({
       scores: report.scores,
       tiers: report.tiers,

@@ -97,6 +97,44 @@ const SECTIONS = [
     ],
   },
   {
+    glyph: "☽\uFE0E",
+    id: "entrainment",
+    title: "Behavioral Entrainment",
+    subtitle: "Why you might not match your birth data",
+    summary:
+      "Decades of external schedule can rewire a biological default — and that rewiring is real.",
+    body: [
+      "The human circadian system is plastic, not fixed. While the photoperiodic imprint at birth sets a baseline, sustained environmental cues — light exposure, meal timing, social schedules, exercise — can shift the expressed chronotype significantly over years and decades.",
+      "This is called behavioral entrainment: the process by which your biological clock synchronizes to external time cues. A natural night owl who has worked early shifts for fifteen years may have genuinely entrained to an earlier rhythm. The original imprint still exists at the level of gene expression, but the expressed behavior may have moved substantially toward the imprint's opposite.",
+      'A useful mental model: your birth profile is your hardware default. Behavioral entrainment is a persistent software setting that overrides the default while it\'s maintained. Neither is more "real" — they operate at different levels. The practical implication is that when the external schedule is removed (retirement, extended leave, sabbatical), many people find themselves drifting back toward their biological default, sometimes to their own surprise.',
+      "This is why geoSync includes a calibration step. If your lived experience consistently contradicts what your birth data predicts, your lived experience is the more relevant data point for relationship compatibility purposes. You interact with people from your current expressed state, not your theoretical biological baseline.",
+    ],
+    citations: [
+      "Roenneberg, T. et al. (2012). Social jetlag and obesity. Current Biology.",
+      "Wittmann, M. et al. (2006). Social jetlag: misalignment of biological and social time. Chronobiology International.",
+      "Monk, T.H. et al. (2000). The relationship of chronotype to sleep duration and sleepiness. Chronobiology International.",
+    ],
+  },
+  {
+    glyph: "♁\uFE0E",
+    id: "selfknowledge",
+    title: "Self-Knowledge as Data",
+    subtitle: "When your experience should override the model",
+    summary:
+      "Population correlations are starting hypotheses. Your consistent self-report is evidence.",
+    body: [
+      "Every derived profile in geoSync is a Bayesian prior: a prediction based on what is statistically likely given your birth data. Like any prior, it should be updated when evidence contradicts it.",
+      "Consistent, cross-context self-knowledge is strong evidence. If you have always understood yourself as a morning person — not occasionally, not when circumstances require it, but as a stable feature of your identity across decades and contexts — that consistency is more reliable than a population-level correlation. The correlation describes what is probable; your experience describes what is actual, at least for you.",
+      "The situations where birth data is most likely to be misleading: chronotype in people with more than ten years of externally-structured early schedules; stress response in people who have done significant therapeutic or developmental work around their default patterns; social season in people who have lived in climates dramatically different from their birth latitude.",
+      "The situations where birth data is most likely to be accurate despite contradicting self-report: stress response under genuine threat (not day-to-day stress, but the kind that bypasses the frontal lobe); chronotype during extended periods of unconstrained schedule; social energy in the month before and after your vulnerability window.",
+      "The calibration feature in geoSync is not an invitation to override the model because you dislike what it says. It is an invitation to override the model because you have better data. Those are different things, and only you can tell the difference.",
+    ],
+    citations: [
+      "Fleeson, W. (2001). Toward a structure- and process-integrated view of personality. Journal of Personality and Social Psychology.",
+      "Vazire, S. & Mehl, M.R. (2008). Knowing me, knowing you: the accuracy and unique predictive validity of self-ratings and other-ratings of daily behavior. Journal of Personality and Social Psychology.",
+    ],
+  },
+  {
     glyph: "✦\uFE0E",
     id: "limits",
     title: "What This Isn't",
