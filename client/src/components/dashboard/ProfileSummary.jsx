@@ -151,8 +151,9 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
               <TraitLabel>Vulnerability Window</TraitLabel>
             </TraitLabelRow>
             <TraitValue>
-              {monthName(derived.vulnerabilityWindow.startMonth)}–
-              {monthName(derived.vulnerabilityWindow.endMonth)}
+              {derived.vulnerabilityWindow
+                ? `${monthName(derived.vulnerabilityWindow.startMonth)}–${monthName(derived.vulnerabilityWindow.endMonth)}`
+                : "—"}
             </TraitValue>
           </Trait>
         </Traits>

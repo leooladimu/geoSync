@@ -57,8 +57,8 @@ async function updateCalibration(req, res) {
     const { userAdjustments } = req.body;
     const profile = await BioProfile.findOneAndUpdate(
       { userId: req.user._id },
-      { userAdjustments },
-      { new: true },
+      { $set: { userAdjustments } }, // use $set, not full replace
+      { new: true, runValidators: true },
     );
     if (!profile) return res.status(404).json({ error: "Profile not found" });
     res.json(profile);
