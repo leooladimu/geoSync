@@ -145,6 +145,20 @@ function scoreStress(profileA, profileB) {
 }
 
 function scoreSeasonal(profileA, profileB) {
+  // Guard against missing vulnerabilityWindow
+  if (!profileA.vulnerabilityWindow || !profileB.vulnerabilityWindow) {
+    return {
+      score: 50,
+      tier: "moderate",
+      overlapMonths: 0,
+      insight: "Vulnerability window data incomplete.",
+      strategy: "Complete profile data for accurate seasonal analysis.",
+      detail: {
+        a: profileA.vulnerabilityWindow || { startMonth: 1, endMonth: 3 },
+        b: profileB.vulnerabilityWindow || { startMonth: 1, endMonth: 3 },
+      },
+    };
+  }
   const setA = expandWindow(
     profileA.vulnerabilityWindow.startMonth,
     profileA.vulnerabilityWindow.endMonth,

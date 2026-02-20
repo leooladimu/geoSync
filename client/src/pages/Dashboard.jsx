@@ -25,10 +25,13 @@ export default function Dashboard() {
   async function loadDashboard() {
     setLoading(true);
     try {
-      const [profileData, connectionsData] = await Promise.all([
-        api.get("/profile", token),
-        api.get("/connections", token),
-      ]);
+      const profileData = await api.get("/profile", token).catch(() => null);
+      if (!profileData) {
+        setError("Please complete your profile first");
+        setLoading(false);
+        return;
+      }
+      const connectionsData = await api.get("/connections", token);
       setProfile(profileData);
       setConnections(connectionsData);
       if (connectionsData.length) {
