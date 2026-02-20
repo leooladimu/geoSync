@@ -13,6 +13,9 @@ function expandWindow(startMonth, endMonth) {
 
 function getEnergyLevel(derived, month) {
   const { vulnerabilityWindow } = derived;
+  if (!vulnerabilityWindow) {
+    return "rising"; // fallback if vulnerabilityWindow is missing
+  }
   const { startMonth, endMonth } = vulnerabilityWindow;
   const vulnMonths = expandWindow(startMonth, endMonth);
   const peakStart = ((startMonth + 5) % 12) + 1;
@@ -127,17 +130,21 @@ function generate(profileA, profileB, month, year) {
     year,
     userA: {
       energyLevel: energyA,
-      inVulnerabilityWindow: expandWindow(
-        profileA.vulnerabilityWindow.startMonth,
-        profileA.vulnerabilityWindow.endMonth,
-      ).has(month),
+      inVulnerabilityWindow: profileA.vulnerabilityWindow
+        ? expandWindow(
+            profileA.vulnerabilityWindow.startMonth,
+            profileA.vulnerabilityWindow.endMonth,
+          ).has(month)
+        : false,
     },
     userB: {
       energyLevel: energyB,
-      inVulnerabilityWindow: expandWindow(
-        profileB.vulnerabilityWindow.startMonth,
-        profileB.vulnerabilityWindow.endMonth,
-      ).has(month),
+      inVulnerabilityWindow: profileB.vulnerabilityWindow
+        ? expandWindow(
+            profileB.vulnerabilityWindow.startMonth,
+            profileB.vulnerabilityWindow.endMonth,
+          ).has(month)
+        : false,
     },
     mismatchRisk,
     recommendations,
