@@ -92,13 +92,15 @@ export default function Dashboard() {
       </TopBar>
       <Content>
         {profile && (
-          <ProfileSummary
-            profile={profile}
-            token={token}
-            onProfileUpdated={setProfile}
-          />
+          <>
+            <ProfileSummary
+              profile={profile}
+              token={token}
+              onProfileUpdated={setProfile}
+            />
+            <NudgesFeed token={token} />
+          </>
         )}
-        <NudgesFeed token={token} />
         <SectionHeader>
           <SectionTitle>Your Connections</SectionTitle>
           <AddButton onClick={() => setModalOpen(true)}>+ Add</AddButton>
