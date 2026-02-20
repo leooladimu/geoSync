@@ -27,11 +27,7 @@ export default function Dashboard() {
   async function loadDashboard() {
     setLoading(true);
     try {
-      const profileData = await api.get("/profile", token).catch(() => null);
-      if (!profileData) {
-        navigate("/onboarding");
-        return;
-      }
+      const profileData = await api.get("/profile", token);
       const connectionsData = await api.get("/connections", token);
       setProfile(profileData);
       setConnections(connectionsData);
@@ -50,6 +46,10 @@ export default function Dashboard() {
         setForecasts(map);
       }
     } catch (err) {
+      if (err.message.includes("No profile found") || err.message.includes("404")) {
+        navigate("/onboarding");
+        return;
+      }
       setError(err.message);
     } finally {
       setLoading(false);
