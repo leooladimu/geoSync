@@ -46,9 +46,11 @@ export default function Dashboard() {
         setForecasts(map);
       }
     } catch (err) {
-      if (err.message.includes("No profile found") || err.message.includes("404")) {
+      console.log('Dashboard error:', err.message);
+      // If profile not found, redirect to onboarding
+      if (err.message.includes("profile") || err.message.includes("404") || err.message.includes("No profile")) {
         setLoading(false);
-        navigate("/onboarding");
+        navigate("/onboarding", { replace: true });
         return;
       }
       setError(err.message);
