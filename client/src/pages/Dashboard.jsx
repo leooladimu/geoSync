@@ -47,11 +47,11 @@ export default function Dashboard() {
       }
     } catch (err) {
       if (err.message.includes("No profile found") || err.message.includes("404")) {
+        setLoading(false);
         navigate("/onboarding");
         return;
       }
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   }
