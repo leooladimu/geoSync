@@ -13,6 +13,7 @@ async function createProfile(req, res) {
         .json({ error: "Profile already exists — use PUT to update" });
     const { lat, lng } = await geocodeBirthLocation(birthLocation);
     const derived = derive(dob, lat, lng, survey);
+    console.log('Derived profile:', JSON.stringify(derived, null, 2));
     const profile = await BioProfile.create({
       userId,
       dob,
@@ -22,6 +23,7 @@ async function createProfile(req, res) {
     });
     res.status(201).json(profile);
   } catch (err) {
+    console.error('Profile creation error:', err);
     res.status(500).json({ error: err.message });
   }
 }

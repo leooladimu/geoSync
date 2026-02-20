@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { SYMBOLS } from "../theme";
 import api from "../utils/api";
@@ -11,6 +12,7 @@ import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const { token, user, logout } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [connections, setConnections] = useState([]);
   const [forecasts, setForecasts] = useState({});
@@ -27,8 +29,7 @@ export default function Dashboard() {
     try {
       const profileData = await api.get("/profile", token).catch(() => null);
       if (!profileData) {
-        setError("Please complete your profile first");
-        setLoading(false);
+        navigate("/onboarding");
         return;
       }
       const connectionsData = await api.get("/connections", token);
