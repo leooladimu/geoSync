@@ -63,17 +63,7 @@ async function createConnection(req, res) {
     } else {
       const { dob, birthLocation, survey } = manualProfile;
       const { lat, lng } = await geocodeBirthLocation(birthLocation);
-      const defaultSurvey = {
-        stressResponse: "expand",
-        openness: "situational",
-        socialSeason: "summer",
-        conflictStyle: "process-first",
-      };
-      const effectiveSurvey = {
-        ...defaultSurvey,
-        ...(survey || {}),
-      };
-      partnerDerived = derive(dob, lat, lng, effectiveSurvey);
+      partnerDerived = derive(dob, lat, lng, survey || { stressResponse:'expand', ...survey });
       manualProfile.birthLocation = { ...birthLocation, lat, lng };
     }
     const ownerEffective = mergeCalibration(
