@@ -1,9 +1,12 @@
-const router = require("express").Router();
-const {
-  getForecast,
-  getForecastRange,
-} = require("../controllers/forecast.controller");
-const auth = require("../middleware/auth.middleware");
-router.get("/:connectionId", auth, getForecast);
-router.get("/:connectionId/range", auth, getForecastRange);
-module.exports = router;
+const express = require('express')
+const { requireAuth } = require('../middleware/auth.middleware')
+const { getForecast, getForecastRange } = require('../controllers/forecast.controller')
+
+const router = express.Router()
+
+router.use(requireAuth)
+
+router.get('/:connectionId', getForecast)
+router.get('/:connectionId/range', getForecastRange)
+
+module.exports = router

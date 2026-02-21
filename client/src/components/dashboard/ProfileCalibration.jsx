@@ -1,7 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { SYMBOLS } from "../../theme";
-import api from "../../utils/api";
+import { SYMBOLS } from "../../theme/theme";
+import { api } from "../../utils/api";
 
 // The three dimensions users can meaningfully self-assess
 const DIMENSIONS = [
@@ -64,7 +64,8 @@ const DIMENSIONS = [
     glyph: "♈\uFE0E",
     question:
       "Which season do you actually feel most open, most yourself, most willing to let people in?",
-    note: "Not when you're busiest or most productive — when you feel most socially alive.",
+    note:
+      "Not when you're busiest or most productive — when you feel most socially alive.",
     options: [
       {
         value: "spring",
@@ -86,8 +87,7 @@ const DIMENSIONS = [
       {
         value: "winter",
         label: "♑\uFE0E Winter",
-        description:
-          "Selective and internal. You protect your energy carefully.",
+        description: "Selective and internal. You protect your energy carefully.",
       },
     ],
   },
@@ -123,11 +123,6 @@ export default function ProfileCalibration({ profile, token, onUpdated }) {
   const derived = profile.derived;
   const adj = profile.userAdjustments || {};
   const dim = DIMENSIONS[step - 1];
-
-  function isMismatch(key) {
-    const derivedKey = key === "stressBaseline" ? "stressBaseline" : key;
-    return answers[key] && answers[key] !== derived[derivedKey];
-  }
 
   async function save() {
     setLoading(true);
@@ -259,8 +254,8 @@ export default function ProfileCalibration({ profile, token, onUpdated }) {
           <MismatchGlyph>{SYMBOLS.star}</MismatchGlyph>
           <MismatchText>
             Your answer differs from what your birth data suggests. That's fine
-            — decades of schedule, genetics, and self-knowledge all count. Your
-            answer will take precedence in compatibility scoring.
+            — decades of schedule, genetics, and self-knowledge all count.
+            Your answer will take precedence in compatibility scoring.
           </MismatchText>
         </MismatchNote>
       )}
@@ -470,8 +465,8 @@ const MismatchNote = styled.div`
   gap: ${({ theme }) => theme.spacing.sm};
   background: ${({ theme }) => theme.colors.bgElevated};
   border-left: 2px solid ${({ theme }) => theme.colors.warning};
-  border-radius: 0 ${({ theme }) => theme.radius.md}
-    ${({ theme }) => theme.radius.md} 0;
+  border-radius: 0 ${({ theme }) => theme.radius.md} ${({ theme }) => theme.radius.md}
+    0;
   padding: ${({ theme }) => theme.spacing.md};
 `;
 const MismatchGlyph = styled.div`

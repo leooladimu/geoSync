@@ -1,279 +1,316 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { SYMBOLS } from "../theme";
-import api from "../utils/api";
+import { SYMBOLS, bp } from "../theme/theme";
+import { api } from "../utils/api";
 import ProfileSummary from "../components/dashboard/ProfileSummary";
 import ConnectionsList from "../components/dashboard/ConnectionsList";
 import NudgesFeed from "../components/dashboard/NudgesFeed";
 import AddConnectionModal from "../components/dashboard/AddConnectionModal";
-import { Link } from "react-router-dom";
 
-export default function Dashboard() {
-  const { token, user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [profile, setProfile] = useState(null);
-  const [connections, setConnections] = useState([]);
-  const [forecasts, setForecasts] = useState({});
-  const [modalOpen, setModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
-  async function loadDashboard() {
-    setLoading(true);
-    try {
-      const profileData = await api.get("/profile", token);
-      const connectionsData = await api.get("/connections", token);
-      setProfile(profileData);
-      setConnections(connectionsData);
-      if (connectionsData.length) {
-        const results = await Promise.all(
-          connectionsData.map((c) =>
-            api
-              .get(`/forecast/${c._id}`, token)
-              .then((f) => ({ id: c._id, data: f })),
-          ),
-        );
-        const map = {};
-        results.forEach(({ id, data }) => {
-          map[id] = data;
-        });
-        setForecasts(map);
-      }
-    } catch (err) {
-      console.log('Dashboard error:', err.message);
-      // If profile not found, redirect to onboarding
-      if (err.message.includes("profile") || err.message.includes("404") || err.message.includes("No profile")) {
-        setLoading(false);
-        navigate("/onboarding", { replace: true });
-        return;
-      }
-      setError(err.message);
-      setLoading(false);
-    }
-  }
-
-  async function handleConnectionAdded() {
-    setModalOpen(false);
-    await loadDashboard();
-  }
-  async function handleDeleteConnection(connectionId) {
-    try {
-      await api.delete(`/connections/${connectionId}`, token);
-      setConnections((prev) => prev.filter((c) => c._id !== connectionId));
-      setForecasts((prev) => {
-        const next = { ...prev };
-        delete next[connectionId];
-        return next;
-      });
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
-  if (loading)
-    return <LoadingPage>{SYMBOLS.earth} Loading your profile...</LoadingPage>;
-  if (error) return <LoadingPage>Something went wrong: {error}</LoadingPage>;
-
-  return (
-    <Page>
-      <TopBar>
-        <Logo to="/">{SYMBOLS.earth} geoSync</Logo>
-        <TopBarRight>
-          <ScienceLink to="/science">The Science</ScienceLink>
-          <UserName>{user?.name}</UserName>
-          <LogoutButton onClick={logout}>Sign out</LogoutButton>
-        </TopBarRight>
-      </TopBar>
-      <Content>
-        {profile && (
-          <>
-            <ProfileSummary
-              profile={profile}
-              token={token}
-              onProfileUpdated={setProfile}
-            />
-            <NudgesFeed token={token} />
-          </>
-        )}
-        <SectionHeader>
-          <SectionTitle>Your Connections</SectionTitle>
-          <AddButton onClick={() => setModalOpen(true)}>+ Add</AddButton>
-        </SectionHeader>
-        {connections.length === 0 ? (
-          <EmptyState>
-            <EmptyGlyph>{SYMBOLS.star}</EmptyGlyph>
-            <EmptyText>No connections yet.</EmptyText>
-            <EmptySubtext>
-              Add someone to generate a compatibility report and seasonal
-              forecast.
-            </EmptySubtext>
-            <AddButton onClick={() => setModalOpen(true)}>
-              Add your first connection
-            </AddButton>
-          </EmptyState>
-        ) : (
-          <ConnectionsList
-            connections={connections}
-            forecasts={forecasts}
-            onDelete={handleDeleteConnection}
-            token={token}
-          />
-        )}
-        <ScienceFooter>
-          <Link to="/science">The science behind geoSync {SYMBOLS.star}</Link>
-        </ScienceFooter>
-      </Content>
-      {modalOpen && (
-        <AddConnectionModal
-          token={token}
-          onAdded={handleConnectionAdded}
-          onClose={() => setModalOpen(false)}
-        />
-      )}
-    </Page>
-  );
-}
-
-const Page = styled.div`
+const DashboardContainer = styled.div`
   min-height: 100vh;
-  background: ${({ theme }) => theme.colors.bg};
+  background-color: ${(props) => props.theme.colors.bg};
+  color: ${(props) => props.theme.colors.textPrimary};
 `;
-const TopBar = styled.div`
+
+const Header = styled.header`
+  background-color: ${(props) => props.theme.colors.bgCard};
+  border-bottom: 1px solid ${(props) => props.theme.colors.border};
+  padding: ${(props) => props.theme.spacing.md}
+    ${(props) => props.theme.spacing.lg};
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ theme }) => `${theme.spacing.lg} ${theme.spacing["2xl"]}`};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  @media (max-width: 480px) {
-    padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
+  flex-wrap: wrap;
+  gap: ${(props) => props.theme.spacing.md};
+
+  @media (min-width: ${bp.md}) {
+    padding: ${(props) => props.theme.spacing.lg}
+      ${(props) => props.theme.spacing["2xl"]};
   }
 `;
+
 const Logo = styled(Link)`
-  font-family: ${({ theme }) => theme.fonts.display};
-  font-size: ${({ theme }) => theme.fontSizes.xl};
-  color: ${({ theme }) => theme.colors.accent};
+  font-family: ${(props) => props.theme.fonts.display};
+  font-size: ${(props) => props.theme.fontSizes.lg};
+  color: ${(props) => props.theme.colors.accent};
+  text-decoration: none;
+
   &:hover {
-    color: ${({ theme }) => theme.colors.accentLight};
+    color: ${(props) => props.theme.colors.accentLight};
+  }
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.xl};
   }
 `;
-const ScienceLink = styled(Link)`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
-  letter-spacing: 0.05em;
-  &:hover {
-    color: ${({ theme }) => theme.colors.accent};
-  }
-`;
-const TopBarRight = styled.div`
+
+const UserSection = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.lg};
+  gap: ${(props) => props.theme.spacing.sm};
+
+  @media (min-width: ${bp.md}) {
+    gap: ${(props) => props.theme.spacing.md};
+  }
 `;
+
 const UserName = styled.span`
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.textSecondary};
-  @media (max-width: 480px) {
-    display: none;
+  color: ${(props) => props.theme.colors.textSecondary};
+  font-size: ${(props) => props.theme.fontSizes.xs};
+  display: none;
+
+  @media (min-width: ${bp.sm}) {
+    display: inline;
+    font-size: ${(props) => props.theme.fontSizes.sm};
   }
 `;
+
 const LogoutButton = styled.button`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
-  min-height: unset;
+  padding: ${(props) => props.theme.spacing.xs}
+    ${(props) => props.theme.spacing.sm};
+  background-color: transparent;
+  color: ${(props) => props.theme.colors.textMuted};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.radius.md};
+  font-size: ${(props) => props.theme.fontSizes.xs};
+  cursor: pointer;
+  transition: all ${(props) => props.theme.transitions.fast};
+
+  @media (min-width: ${bp.md}) {
+    padding: ${(props) => props.theme.spacing.sm}
+      ${(props) => props.theme.spacing.md};
+    font-size: ${(props) => props.theme.fontSizes.sm};
+  }
+
   &:hover {
-    color: ${({ theme }) => theme.colors.textSecondary};
+    border-color: ${(props) => props.theme.colors.danger};
+    color: ${(props) => props.theme.colors.danger};
   }
 `;
-const Content = styled.main`
-  max-width: 800px;
+
+const Nav = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+
+  @media (min-width: ${bp.md}) {
+    gap: ${(props) => props.theme.spacing.lg};
+  }
+`;
+
+const NavLink = styled.span`
+  color: ${(props) => props.theme.colors.textSecondary};
+  font-size: ${(props) => props.theme.fontSizes.xs};
+  cursor: pointer;
+  transition: color ${(props) => props.theme.transitions.fast};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.sm};
+  }
+
+  &:hover {
+    color: ${(props) => props.theme.colors.accent};
+  }
+`;
+
+const Main = styled.main`
+  max-width: 1200px;
   margin: 0 auto;
-  padding: ${({ theme }) => theme.spacing["2xl"]};
+  padding: ${(props) => props.theme.spacing.lg};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing["2xl"]};
-  @media (max-width: 768px) {
-    padding: ${({ theme }) => theme.spacing.xl};
-  }
-  @media (max-width: 480px) {
-    padding: ${({ theme }) => theme.spacing.lg};
-    gap: ${({ theme }) => theme.spacing.xl};
+  gap: ${(props) => props.theme.spacing.lg};
+
+  @media (min-width: ${bp.md}) {
+    padding: ${(props) => props.theme.spacing["2xl"]};
+    gap: ${(props) => props.theme.spacing["2xl"]};
   }
 `;
+
+const WelcomeSection = styled.div`
+  text-align: center;
+  margin-bottom: ${(props) => props.theme.spacing.md};
+
+  @media (min-width: ${bp.md}) {
+    margin-bottom: ${(props) => props.theme.spacing.xl};
+  }
+`;
+
+const WelcomeTitle = styled.h1`
+  font-size: ${(props) => props.theme.fontSizes.xl};
+  color: ${(props) => props.theme.colors.textPrimary};
+  margin-bottom: ${(props) => props.theme.spacing.sm};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes["3xl"]};
+    margin-bottom: ${(props) => props.theme.spacing.md};
+  }
+`;
+
+const WelcomeSubtitle = styled.p`
+  font-size: ${(props) => props.theme.fontSizes.sm};
+  color: ${(props) => props.theme.colors.textSecondary};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.lg};
+  }
+`;
+
+const Section = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.md};
+
+  @media (min-width: ${bp.md}) {
+    gap: ${(props) => props.theme.spacing.lg};
+  }
+`;
+
 const SectionHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: ${(props) => props.theme.spacing.sm};
 `;
+
 const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.fontSizes.xl};
-  color: ${({ theme }) => theme.colors.textPrimary};
+  font-size: ${(props) => props.theme.fontSizes.lg};
+  color: ${(props) => props.theme.colors.textPrimary};
+  margin: 0;
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.xl};
+  }
 `;
+
 const AddButton = styled.button`
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.lg}`};
-  background: transparent;
-  color: ${({ theme }) => theme.colors.accent};
-  border: 1px solid ${({ theme }) => theme.colors.accentDim};
-  border-radius: ${({ theme }) => theme.radius.md};
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  transition: all ${({ theme }) => theme.transitions.fast};
-  white-space: nowrap;
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
+  background-color: ${(props) => props.theme.colors.accent};
+  color: ${(props) => props.theme.colors.bg};
+  border: none;
+  border-radius: ${(props) => props.theme.radius.md};
+  font-size: ${(props) => props.theme.fontSizes.xs};
+  font-weight: 600;
+  cursor: pointer;
+  transition: all ${(props) => props.theme.transitions.fast};
+
+  @media (min-width: ${bp.md}) {
+    padding: ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.md};
+    font-size: ${(props) => props.theme.fontSizes.sm};
+  }
+
   &:hover {
-    background: ${({ theme }) => theme.colors.accentDim};
-    color: ${({ theme }) => theme.colors.accentLight};
+    background-color: ${(props) => props.theme.colors.accentLight};
   }
 `;
-const EmptyState = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing["3xl"]};
-  gap: ${({ theme }) => theme.spacing.md};
-  background: ${({ theme }) => theme.colors.bgCard};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.xl};
-  @media (max-width: 480px) {
-    padding: ${({ theme }) => theme.spacing["2xl"]}
-      ${({ theme }) => theme.spacing.lg};
-  }
-`;
-const EmptyGlyph = styled.div`
-  font-size: 2rem;
-  color: ${({ theme }) => theme.colors.accentDim};
-`;
-const EmptyText = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-  color: ${({ theme }) => theme.colors.textPrimary};
-`;
-const EmptySubtext = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.textMuted};
-  max-width: 300px;
-`;
-const LoadingPage = styled.div`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.colors.textMuted};
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-`;
-const ScienceFooter = styled.div`
-  text-align: center;
-  padding-top: ${({ theme }) => theme.spacing.xl};
-  border-top: 1px solid ${({ theme }) => theme.colors.border};
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
-  a {
-    color: ${({ theme }) => theme.colors.textMuted};
-    &:hover {
-      color: ${({ theme }) => theme.colors.accent};
+
+export default function Dashboard() {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [connectionsKey, setConnectionsKey] = useState(0);
+
+  const { user, token, logout } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const data = await api.get("/profile/me", token);
+        setProfile(data);
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+        if (err.status === 404) {
+          navigate("/onboarding");
+        }
+      } finally {
+        setLoading(false);
+      }
     }
+    loadProfile();
+  }, [token, navigate]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/welcome");
+  };
+
+  if (loading) {
+    return (
+      <DashboardContainer>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "100vh",
+          }}
+        >
+          {SYMBOLS.earth} Loading...
+        </div>
+      </DashboardContainer>
+    );
   }
-`;
+
+  return (
+    <DashboardContainer>
+      <Header>
+        <Logo to="/dashboard">{SYMBOLS.earth} geoSync</Logo>
+        <Nav>
+          <NavLink onClick={() => navigate("/science")}>The Science</NavLink>
+          <UserSection>
+            <UserName>Welcome, {user?.name}</UserName>
+            <LogoutButton onClick={handleLogout}>Sign Out</LogoutButton>
+          </UserSection>
+        </Nav>
+      </Header>
+
+      <Main>
+        <WelcomeSection>
+          <WelcomeTitle>Your Compatibility Dashboard</WelcomeTitle>
+          <WelcomeSubtitle>
+            Understand your patterns and navigate your relationships with
+            biophysical insight
+          </WelcomeSubtitle>
+        </WelcomeSection>
+
+        {profile && (
+          <ProfileSummary
+            profile={profile}
+            token={token}
+            onProfileUpdated={setProfile}
+          />
+        )}
+        <NudgesFeed token={token} />
+
+        <Section>
+          <SectionHeader>
+            <SectionTitle>Connections</SectionTitle>
+            <AddButton onClick={() => setShowAddModal(true)}>
+              {SYMBOLS.star} Add Connection
+            </AddButton>
+          </SectionHeader>
+          <ConnectionsList 
+            key={connectionsKey} 
+            token={token} 
+          />
+        </Section>
+
+        {showAddModal && (
+          <AddConnectionModal
+            token={token}
+            onAdded={() => {
+              setConnectionsKey(k => k + 1);
+              setShowAddModal(false);
+            }}
+            onClose={() => setShowAddModal(false)}
+          />
+        )}
+      </Main>
+    </DashboardContainer>
+  );
+}

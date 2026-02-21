@@ -1,166 +1,199 @@
-const ENERGY_RANK = { low: 0, dipping: 1, rising: 2, peak: 3 };
+/**
+ * Generates seasonal forecasts for connections based on vulnerability windows
+ * and current energy patterns.
+ */
 
-function expandWindow(startMonth, endMonth) {
-  const months = new Set();
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+// Energy level mapping by season and individual profile
+function getEnergyLevel(profile, currentMonth) {
+  const { vulnerabilityWindow, season } = profile
+  const { startMonth, endMonth } = vulnerabilityWindow
+  
+  // Check if currently in vulnerability window
+  const inWindow = isInWindow(currentMonth, startMonth, endMonth)
+  
+  if (inWindow) {
+    return 'low'
+  }
+  
+  // Peak energy is typically in the opposite season from birth season
+  const peakSeason = getOppositeSeason(season)
+  const currentSeason = getCurrentSeason(currentMonth)
+  
+  if (currentSeason === peakSeason) {
+    return 'peak'
+  }
+  
+  // Rising energy leading up to peak
+  if (isApproachingSeason(currentMonth, peakSeason)) {
+    return 'rising'
+  }
+  
+  // Otherwise dipping
+  return 'dipping'
+}
+
+function isInWindow(month, startMonth, endMonth) {
   if (startMonth <= endMonth) {
-    for (let m = startMonth; m <= endMonth; m++) months.add(m);
+    return month >= startMonth && month <= endMonth
+  }
+  return month >= startMonth || month <= endMonth
+}
+
+function getCurrentSeason(month) {
+  if (month >= 3 && month <= 5) return 'spring'
+  if (month >= 6 && month <= 8) return 'summer'
+  if (month >= 9 && month <= 11) return 'fall'
+  return 'winter'
+}
+
+function getOppositeSeason(season) {
+  const opposites = {
+    'spring': 'fall',
+    'summer': 'winter',
+    'fall': 'spring',
+    'winter': 'summer'
+  }
+  return opposites[season]
+}
+
+function isApproachingSeason(currentMonth, targetSeason) {
+  const seasonMonths = {
+    'spring': [3, 4, 5],
+    'summer': [6, 7, 8],
+    'fall': [9, 10, 11],
+    'winter': [12, 1, 2]
+  }
+  
+  const targetMonths = seasonMonths[targetSeason]
+  const currentIndex = targetMonths.indexOf(currentMonth)
+  
+  // If we're 1-2 months before the target season
+  if (currentIndex > 0 && currentIndex <= 2) {
+    return true
+  }
+  
+  // Handle year wrap for winter
+  if (targetSeason === 'winter' && (currentMonth === 10 || currentMonth === 11)) {
+    return true
+  }
+  
+  return false
+}
+
+function assessMismatchRisk(userA, userB) {
+  // Both low = high risk
+  if (userA.energyLevel === 'low' && userB.energyLevel === 'low') {
+    return 'high'
+  }
+  
+  // One low, one peak = moderate risk
+  if ((userA.energyLevel === 'low' && userB.energyLevel === 'peak') ||
+      (userA.energyLevel === 'peak' && userB.energyLevel === 'low')) {
+    return 'moderate'
+  }
+  
+  // Both in vulnerability windows = high risk
+  if (userA.inVulnerabilityWindow && userB.inVulnerabilityWindow) {
+    return 'high'
+  }
+  
+  return 'low'
+}
+
+function generateRecommendations(userA, userB, riskLevel) {
+  const recommendations = []
+  
+  if (riskLevel === 'high') {
+    recommendations.push("Schedule important conversations for when both energy levels rise")
+    recommendations.push("Lean on external support systems during this period")
+    recommendations.push("Postpone major decisions if possible")
+  } else if (riskLevel === 'moderate') {
+    recommendations.push("The higher-energy partner takes lead in planning")
+    recommendations.push("Use async communication for sensitive topics")
   } else {
-    for (let m = startMonth; m <= 12; m++) months.add(m);
-    for (let m = 1; m <= endMonth; m++) months.add(m);
+    recommendations.push("Good window for relationship growth and deep conversations")
   }
-  return months;
+  
+  // Specific recommendations based on energy patterns
+  if (userA.energyLevel === 'low' && userB.energyLevel !== 'low') {
+    recommendations.push("Partner B provides stability while Partner A recharges")
+  }
+  if (userB.energyLevel === 'low' && userA.energyLevel !== 'low') {
+    recommendations.push("Partner A provides stability while Partner B recharges")
+  }
+  
+  return recommendations
 }
 
-function getEnergyLevel(derived, month) {
-  const { vulnerabilityWindow } = derived;
-  if (!vulnerabilityWindow) {
-    return "rising"; // fallback if vulnerabilityWindow is missing
+function generateScripts(userA, userB, riskLevel) {
+  const scripts = []
+  
+  if (riskLevel === 'high') {
+    scripts.push("I'm noticing we're both in a low-energy period. Let's table this for a few days.")
+    scripts.push("This feels like it's about timing more than substance. Can we check back next week?")
   }
-  const { startMonth, endMonth } = vulnerabilityWindow;
-  const vulnMonths = expandWindow(startMonth, endMonth);
-  const peakStart = ((startMonth + 5) % 12) + 1;
-  const peakEnd = ((endMonth + 5) % 12) + 1;
-  const peakMonths = expandWindow(peakStart, peakEnd);
-  const risingStart = ((peakStart - 3 + 12) % 12) + 1;
-  const risingEnd = ((peakStart - 2 + 12) % 12) + 1;
-  const risingMonths = expandWindow(risingStart, risingEnd);
-  if (vulnMonths.has(month)) return month === startMonth ? "dipping" : "low";
-  if (peakMonths.has(month)) return "peak";
-  if (risingMonths.has(month)) return "rising";
-  for (let i = 1; i <= 2; i++) {
-    const prev = ((month - 1 - i + 12) % 12) + 1;
-    if (peakMonths.has(prev)) return "dipping";
+  
+  if (userA.energyLevel === 'low' && userB.energyLevel !== 'low') {
+    scripts.push("I'm in my recharge window. Can you hold space while I process?")
   }
-  return "rising";
+  
+  if (userB.energyLevel === 'low' && userA.energyLevel !== 'low') {
+    scripts.push("I can see you're in your low period. What do you need from me right now?")
+  }
+  
+  return scripts
 }
 
-function getMismatchRisk(energyA, energyB) {
-  if (energyA === "low" && energyB === "low") return "high";
-  const diff = Math.abs(ENERGY_RANK[energyA] - ENERGY_RANK[energyB]);
-  if (diff <= 1) return "low";
-  if (diff === 2) return "moderate";
-  return "high";
+/**
+ * generateForecast(profileA, profileB, startMonth, startYear) → 3-month forecast array
+ */
+function generateForecast(profileA, profileB, startMonth = null, startYear = null) {
+  const currentDate = new Date()
+  const month = startMonth || currentDate.getMonth() + 1
+  const year = startYear || currentDate.getFullYear()
+  
+  const forecast = []
+  
+  for (let i = 0; i < 3; i++) {
+    const forecastMonth = ((month - 1 + i) % 12) + 1
+    const forecastYear = year + Math.floor((month - 1 + i) / 12)
+    
+    const userA = {
+      energyLevel: getEnergyLevel(profileA, forecastMonth),
+      inVulnerabilityWindow: isInWindow(
+        forecastMonth,
+        profileA.vulnerabilityWindow.startMonth,
+        profileA.vulnerabilityWindow.endMonth
+      )
+    }
+    
+    const userB = {
+      energyLevel: getEnergyLevel(profileB, forecastMonth),
+      inVulnerabilityWindow: isInWindow(
+        forecastMonth,
+        profileB.vulnerabilityWindow.startMonth,
+        profileB.vulnerabilityWindow.endMonth
+      )
+    }
+    
+    const mismatchRisk = assessMismatchRisk(userA, userB)
+    const recommendations = generateRecommendations(userA, userB, mismatchRisk)
+    const scripts = generateScripts(userA, userB, mismatchRisk)
+    
+    forecast.push({
+      month: forecastMonth,
+      year: forecastYear,
+      userA,
+      userB,
+      mismatchRisk,
+      recommendations,
+      scripts
+    })
+  }
+  
+  return forecast
 }
 
-function generateRecommendations(
-  energyA,
-  energyB,
-  mismatchRisk,
-  profileA,
-  profileB,
-) {
-  const recommendations = [];
-  const scripts = [];
-
-  if (energyA === "low" && energyB === "low") {
-    recommendations.push(
-      "You're both in a low-energy window. Don't mistake shared fatigue for relationship problems.",
-      "Lean on external support this month.",
-      "Minimize big decisions.",
-    );
-    scripts.push(
-      "Instead of: 'We need to talk about us.' Try: 'I'm feeling low this month. How are you doing?'",
-    );
-    return { recommendations, scripts };
-  }
-  if (
-    (energyA === "low" || energyA === "dipping") &&
-    (energyB === "peak" || energyB === "rising")
-  ) {
-    recommendations.push(
-      "A is in a low window, B is energized. Let B take the lead this month.",
-      "A: Don't confuse seasonal low energy with relationship doubt.",
-      "B: Hold your expansion energy — A can't match it right now.",
-    );
-    scripts.push(
-      "B to A: 'I've got you this month. Tell me what you need.'",
-      "A to B: 'I'm not at my best right now — it's not about us.'",
-    );
-  }
-  if (
-    (energyA === "peak" || energyA === "rising") &&
-    (energyB === "low" || energyB === "dipping")
-  ) {
-    recommendations.push(
-      "B is in a low window. A leads on logistics this month.",
-      "B: Your seasonal low may make stable things feel stale. Don't make permanent decisions from a temporary state.",
-      "A: Resist the urge to accelerate.",
-    );
-    scripts.push(
-      "A to B: 'You don't have to be on right now. I've got us.'",
-      "B to A: 'I know I'm quieter than usual — I just need time to come back to myself.'",
-    );
-  }
-  if (energyA === "peak" && energyB === "peak") {
-    recommendations.push(
-      "You're both at peak energy. Great for growth — but watch for over-commitment.",
-      "Best window for addressing anything unresolved.",
-      "Don't make promises your future selves can't keep.",
-    );
-    scripts.push(
-      "Before any big commitment: 'How will we feel about this in January?'",
-    );
-  }
-  if (profileA.stressBaseline === "freeze" && energyA === "low") {
-    recommendations.push(
-      "A's freeze response will be amplified this month. Extra space, not extra pressure.",
-    );
-  }
-  if (profileB.stressBaseline === "fight-flight" && energyB === "low") {
-    recommendations.push(
-      "B's fight-flight response may create conflict this month to generate stimulation. Recognize the pattern before reacting.",
-    );
-  }
-  return { recommendations, scripts };
-}
-
-function generate(profileA, profileB, month, year) {
-  const energyA = getEnergyLevel(profileA, month);
-  const energyB = getEnergyLevel(profileB, month);
-  const mismatchRisk = getMismatchRisk(energyA, energyB);
-  const { recommendations, scripts } = generateRecommendations(
-    energyA,
-    energyB,
-    mismatchRisk,
-    profileA,
-    profileB,
-  );
-  return {
-    month,
-    year,
-    userA: {
-      energyLevel: energyA,
-      inVulnerabilityWindow: profileA.vulnerabilityWindow
-        ? expandWindow(
-            profileA.vulnerabilityWindow.startMonth,
-            profileA.vulnerabilityWindow.endMonth,
-          ).has(month)
-        : false,
-    },
-    userB: {
-      energyLevel: energyB,
-      inVulnerabilityWindow: profileB.vulnerabilityWindow
-        ? expandWindow(
-            profileB.vulnerabilityWindow.startMonth,
-            profileB.vulnerabilityWindow.endMonth,
-          ).has(month)
-        : false,
-    },
-    mismatchRisk,
-    recommendations,
-    scripts,
-  };
-}
-
-function generateRange(profileA, profileB, startMonth, startYear, months = 3) {
-  const forecasts = [];
-  for (let i = 0; i < months; i++) {
-    const total = startMonth + i;
-    const month = ((total - 1) % 12) + 1;
-    const year = startYear + Math.floor((total - 1) / 12);
-    forecasts.push(generate(profileA, profileB, month, year));
-  }
-  return forecasts;
-}
-
-module.exports = { generate, generateRange };
+module.exports = { generateForecast }

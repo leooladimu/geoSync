@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { SEASON_SYMBOLS, SYMBOLS } from "../../theme";
+import { SEASON_SYMBOLS, SYMBOLS, bp } from "../../theme/theme";
 import ProfileCalibration from "./ProfileCalibration";
 
 const LIGHT_LABELS = {
@@ -17,7 +17,11 @@ const STRESS_LABELS = {
   expand: "Expand & Adapt",
   "fight-flight": "Fight or Flight",
 };
-const NEURO_COLORS = { high: "#4a7a5a", moderate: "#c9a03a", low: "#7a4a3a" };
+const NEURO_COLORS = {
+  high: "#4a7a5a",
+  moderate: "#c9a03a",
+  low: "#7a4a3a",
+};
 
 function monthName(n) {
   return [
@@ -61,7 +65,6 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
   // Use calibrated values where present
   const chronotype = adj.chronotype || derived.chronotype;
   const stressBaseline = adj.stressBaseline || derived.stressBaseline;
-  const socialSeason = adj.socialSeason || derived.socialSeason;
 
   const chronoStatus = calibrationStatus(derived.chronotype, adj.chronotype);
   const stressStatus = calibrationStatus(
@@ -89,16 +92,12 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
             <ProfileName>Your Biophysical Profile</ProfileName>
             <ProfileMeta>
               {birthLocation.city}
-              {birthLocation.state ? `, ${birthLocation.state}` : ""} ·{" "}
-              {dobYear} · <SeasonLabel>{derived.season}</SeasonLabel>
+              {birthLocation.state ? `, ${birthLocation.state}` : ""} · {dobYear}{" "}
+              · <SeasonLabel>{derived.season}</SeasonLabel>
             </ProfileMeta>
           </CardTopText>
           <CalibrateButton onClick={() => setShowCalibration((p) => !p)}>
-            {showCalibration
-              ? "Done"
-              : anyCalibrated
-                ? `Recalibrate`
-                : `Calibrate`}
+            {showCalibration ? "Done" : anyCalibrated ? "Recalibrate" : "Calibrate"}
           </CalibrateButton>
         </CardTop>
 
@@ -114,17 +113,12 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
             <TraitLabelRow>
               <TraitLabel>Chronotype</TraitLabel>
               {chronoStatus !== "derived" && (
-                <StatusDot
-                  $status={chronoStatus}
-                  title={STATUS_LABELS[chronoStatus]}
-                />
+                <StatusDot $status={chronoStatus} title={STATUS_LABELS[chronoStatus]} />
               )}
             </TraitLabelRow>
             <TraitValue>{CHRONO_LABELS[chronotype]}</TraitValue>
             {chronoStatus === "adjusted" && (
-              <TraitNote>
-                derived: {CHRONO_LABELS[derived.chronotype]}
-              </TraitNote>
+              <TraitNote>derived: {CHRONO_LABELS[derived.chronotype]}</TraitNote>
             )}
           </Trait>
 
@@ -132,17 +126,12 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
             <TraitLabelRow>
               <TraitLabel>Stress Response</TraitLabel>
               {stressStatus !== "derived" && (
-                <StatusDot
-                  $status={stressStatus}
-                  title={STATUS_LABELS[stressStatus]}
-                />
+                <StatusDot $status={stressStatus} title={STATUS_LABELS[stressStatus]} />
               )}
             </TraitLabelRow>
             <TraitValue>{STRESS_LABELS[stressBaseline]}</TraitValue>
             {stressStatus === "adjusted" && (
-              <TraitNote>
-                derived: {STRESS_LABELS[derived.stressBaseline]}
-              </TraitNote>
+              <TraitNote>derived: {STRESS_LABELS[derived.stressBaseline]}</TraitNote>
             )}
           </Trait>
 
@@ -151,9 +140,8 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
               <TraitLabel>Vulnerability Window</TraitLabel>
             </TraitLabelRow>
             <TraitValue>
-              {derived.vulnerabilityWindow
-                ? `${monthName(derived.vulnerabilityWindow.startMonth)}–${monthName(derived.vulnerabilityWindow.endMonth)}`
-                : "—"}
+              {monthName(derived.vulnerabilityWindow.startMonth)}–
+              {monthName(derived.vulnerabilityWindow.endMonth)}
             </TraitValue>
           </Trait>
         </Traits>
@@ -204,26 +192,39 @@ const Wrapper = styled.div`
 const Card = styled.div`
   background: ${({ theme }) => theme.colors.bgCard};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.xl};
-  padding: ${({ theme }) => theme.spacing.xl};
-  @media (max-width: 480px) {
+  border-radius: ${({ theme }) => theme.radius.lg};
+  padding: ${({ theme }) => theme.spacing.md};
+
+  @media (min-width: ${bp.sm}) {
     padding: ${({ theme }) => theme.spacing.lg};
+    border-radius: ${({ theme }) => theme.radius.xl};
+  }
+
+  @media (min-width: ${bp.md}) {
+    padding: ${({ theme }) => theme.spacing.xl};
   }
 `;
 const CardTop = styled.div`
   display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing.lg};
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
+  align-items: flex-start;
+  gap: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
   flex-wrap: wrap;
+
+  @media (min-width: ${bp.md}) {
+    align-items: center;
+    gap: ${({ theme }) => theme.spacing.lg};
+    margin-bottom: ${({ theme }) => theme.spacing.xl};
+  }
 `;
 const SeasonGlyph = styled.div`
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   color: ${({ theme }) => theme.colors.accent};
   line-height: 1;
   flex-shrink: 0;
-  @media (max-width: 480px) {
-    font-size: 1.75rem;
+
+  @media (min-width: ${bp.md}) {
+    font-size: 2.5rem;
   }
 `;
 const CardTopText = styled.div`
@@ -231,10 +232,15 @@ const CardTopText = styled.div`
   min-width: 0;
 `;
 const ProfileName = styled.h2`
-  font-size: ${({ theme }) => theme.fontSizes.xl};
+  font-size: ${({ theme }) => theme.fontSizes.md};
   color: ${({ theme }) => theme.colors.textPrimary};
-  @media (max-width: 480px) {
+
+  @media (min-width: ${bp.sm}) {
     font-size: ${({ theme }) => theme.fontSizes.lg};
+  }
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${({ theme }) => theme.fontSizes.xl};
   }
 `;
 const ProfileMeta = styled.p`
@@ -263,11 +269,14 @@ const CalibrateButton = styled.button`
 `;
 const Traits = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${({ theme }) => theme.spacing.md};
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
+  grid-template-columns: 1fr;
+  gap: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (min-width: ${bp.sm}) {
+    grid-template-columns: 1fr 1fr;
+    gap: ${({ theme }) => theme.spacing.md};
+    margin-bottom: ${({ theme }) => theme.spacing.xl};
   }
 `;
 const Trait = styled.div`
@@ -314,9 +323,16 @@ const TraitNote = styled.div`
 
 const NeuroRow = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.lg};
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+  align-items: flex-start;
+
+  @media (min-width: ${bp.sm}) {
+    flex-direction: row;
+    gap: ${({ theme }) => theme.spacing.lg};
+    flex-wrap: wrap;
+    align-items: center;
+  }
 `;
 const NeuroItem = styled.div`
   display: flex;
@@ -342,8 +358,9 @@ const CalibrationNote = styled.p`
   font-size: ${({ theme }) => theme.fontSizes.xs};
   color: ${({ theme }) => theme.colors.textMuted};
   font-style: italic;
-  margin-left: auto;
-  @media (max-width: 480px) {
-    margin-left: 0;
+  margin-left: 0;
+
+  @media (min-width: ${bp.md}) {
+    margin-left: auto;
   }
 `;

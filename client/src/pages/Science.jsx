@@ -1,99 +1,59 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { SYMBOLS } from "../theme";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { SYMBOLS } from '../theme/theme';
+import { useAuth } from '../hooks/useAuth';
 
 const SECTIONS = [
   {
     glyph: "☉\uFE0E",
-    id: "photoperiodic",
-    title: "Photoperiodic Imprinting",
-    subtitle: "Why birth date matters",
+    id: "chronobiology",
+    title: "Chronobiology",
+    subtitle: "The science of biological time",
     summary:
-      "The light cycle present at your birth calibrates your brain's master clock for life.",
+      "Your body runs on multiple clocks. Understanding them is the foundation of compatibility.",
     body: [
-      "Your suprachiasmatic nucleus (SCN) — a cluster of roughly 20,000 neurons in the hypothalamus — functions as your brain's master biological clock. It regulates circadian rhythms, hormone release, sleep architecture, and energy cycles across your entire body.",
-      'In the days and weeks around birth, the SCN undergoes a critical calibration period during which it locks onto the ambient light cycle. The length of daylight at the time of your birth — whether days were lengthening toward summer or shortening toward winter — sets a baseline photoperiodic "expectation" that persists into adulthood.',
-      "This is why spring and early-summer births tend to produce morning-oriented chronotypes (larks), while late-summer and fall births correlate with evening-oriented chronotypes (owls). The SCN calibrated to a different photoperiodic signal.",
-      "Research from Vanderbilt University's chronobiology group and the work of Till Roenneberg at Ludwig Maximilian University Munich has established robust correlations between birth season and adult chronotype across populations of hundreds of thousands of participants.",
+      "Every cell in your body contains molecular clocks that regulate when hormones are released, when neurotransmitters peak, and when your metabolism shifts gears. These clocks are set partially by genetics, partially by light exposure, and partially by the photoperiod — the ratio of daylight to darkness — during your early development.",
+      "The key insight for relationships: people with similar chronotypes experience the world in synchrony. They wake up at similar energy levels, peak together, and wind down together. People with opposing chronotypes are essentially living in different time zones while sharing the same physical space. This creates friction not because either person is wrong, but because their biological realities are out of phase.",
+      "Chronotype isn't about preference. It's about the actual circadian phase of your biological systems. An owl forced to wake at 6am is experiencing what researchers call 'social jetlag' — a chronic misalignment between their biological clock and social obligations. Over time, this creates cumulative stress that affects mood, cognition, and relationship capacity.",
     ],
     citations: [
-      "Roenneberg, T. et al. (2007). Epidemiology of the human circadian clock. Sleep Medicine Reviews.",
-      "Foster, R.G. & Roenneberg, T. (2008). Human responses to the geophysical daily, annual and lunar cycles. Current Biology.",
+      "Roenneberg, T. (2012). Internal Time: Chronotypes, Social Jet Lag, and Why You're So Tired. Harvard University Press.",
+      "Foster, R.G. & Kreitzman, L. (2017). Circadian Rhythms: A Very Short Introduction. Oxford University Press.",
     ],
   },
   {
     glyph: "♁\uFE0E",
-    id: "latitude",
-    title: "Latitude & Prenatal Neurodevelopment",
-    subtitle: "Why birth location matters",
+    id: "stress-response",
+    title: "Stress Response Patterns",
+    subtitle: "How threat reorganizes the nervous system",
     summary:
-      "Your birth latitude shaped prenatal Vitamin D exposure and HPA-axis wiring.",
+      "Under genuine threat, people don't become better versions of themselves. They become more themselves.",
     body: [
-      "Ultraviolet-B radiation from the sun triggers Vitamin D synthesis in skin. At higher latitudes, UV-B is dramatically reduced — especially in winter — meaning pregnancies at high latitudes involve significantly lower prenatal Vitamin D exposure than those closer to the equator.",
-      "Vitamin D is not merely a bone mineral. It functions as a neuroactive steroid, crossing the blood-brain barrier and influencing the development of dopaminergic and serotonergic systems during fetal brain development. Prenatal Vitamin D deficiency has been associated with altered dopamine receptor density and dysregulation of HPA-axis stress response.",
-      'The HPA axis (hypothalamic-pituitary-adrenal axis) governs your cortisol response to stress. Its baseline sensitivity — whether you tend to mobilize stress hormones quickly and intensely or slowly and moderately — is partially set during fetal development and early childhood. High-latitude births are associated with a more sensitized HPA response, which in adults often presents as what we call a "freeze" stress pattern: withdrawal, hypervigilance, and heightened threat sensitivity.',
-      "This is the biological mechanism behind the latitude tier in your profile. It is not deterministic — environment, attachment history, and trauma all overlay the prenatal baseline — but it represents a real signal in the data.",
+      "When something you care about is genuinely threatened, your nervous system executes pre-programmed response patterns before conscious thought enters the equation. These patterns — freeze, expand/problem-solve, or fight/flight — are shaped by genetics, early environment, and repeated experience. They're not character flaws or virtues. They're biological defaults.",
+      "The freeze response (withdrawal, going internal, needing space) is often misread as avoidance or coldness. The expand response (immediate problem-solving, discomfort driving action) is often misread as controlling or insensitive. The fight/flight response (immediate emotional or physical reaction) is often misread as aggression or volatility. In all cases, the misreading creates secondary conflict on top of the original stress.",
+      "Compatibility in stress response isn't about matching. It's about complementarity that creates coverage rather than collision. Two freezers may avoid necessary confrontation. Two fighters may escalate unnecessarily. But a freezer paired with someone who can hold ground without forcing engagement — that's protective coverage. The key is knowing what you each do under pressure, and building explicit protocols for those moments.",
     ],
     citations: [
-      "McGrath, J. et al. (2010). Vitamin D and schizophrenia: an update. Expert Reviews in Neurotherapeutics.",
-      "Eyles, D.W. et al. (2013). Developmental Vitamin D and brain development. Reviews in the Neurosciences.",
-      "Tsigos, C. & Chrousos, G.P. (2002). Hypothalamic-pituitary-adrenal axis, neuroendocrine factors and stress. Journal of Psychosomatic Research.",
+      "Porges, S.W. (2011). The Polyvagal Theory: Neurophysiological Foundations of Emotions, Attachment, Communication, and Self-Regulation. W. W. Norton & Company.",
+      "Levine, P.A. (2010). In an Unspoken Voice: How the Body Releases Trauma and Restores Goodness. North Atlantic Books.",
     ],
   },
   {
     glyph: "♈\uFE0E",
-    id: "neurotransmitters",
-    title: "Season of Birth & Neurotransmitter Baselines",
-    subtitle: "Why birth season affects mood and motivation",
+    id: "seasonal-imprinting",
+    title: "Seasonal Imprinting",
+    subtitle: "Why birth season matters more than astrology",
     summary:
-      "Birth season correlates with adult dopamine and serotonin receptor density.",
+      "The photoperiod during your first months of life leaves a persistent signature on your neurobiology.",
     body: [
-      "Serotonin and dopamine are synthesized in the developing brain during gestation, and the enzymes responsible for their production — tryptophan hydroxylase (serotonin) and tyrosine hydroxylase (dopamine) — are sensitive to photoperiod and temperature.",
-      "A series of studies from Tromsø University Hospital and the European Neuropsychopharmacology group found measurable differences in serotonin transporter binding and dopamine D2 receptor density across birth seasons. Winter births show lower serotonin transporter availability in adulthood; spring and summer births show higher baseline serotonin signaling.",
-      "The practical consequence is that your baseline neurotransmitter profile — not your momentary mood, but your underlying motivational architecture — is partially a function of the neurochemical environment during fetal brain development. This shows up in how readily you seek novelty, how you respond to reward and disappointment, and how your mood modulates across seasons.",
-      "This is why geoSync surfaces dopamine and serotonin baselines as descriptors rather than diagnoses. A low dopamine baseline doesn't mean something is wrong — it means your motivational system calibrated to a lower-stimulus baseline, which has its own set of advantages and its own set of vulnerabilities in relationships.",
+      "During early development, the ratio of daylight to darkness you experience helps calibrate your developing stress response systems and neurotransmitter baselines. This isn't mystical. It's the same mechanism that sets migration patterns in birds and breeding cycles in mammals — environmental cues shaping biology during critical developmental windows.",
+      "Spring and summer births, with their longer photoperiods, correlate with different developmental trajectories than fall and winter births. The effect sizes are modest at the individual level, but they're consistent across large populations. More importantly, they interact with latitude: the seasonal effect is stronger at higher latitudes where photoperiod variation is more extreme.",
+      "For relationships, the relevant insight is about vulnerability timing. People tend to have predictable seasonal patterns in their energy, sociability, and resilience. When two people's vulnerability windows overlap — when both are in low-energy, high-stress periods simultaneously — that's when relationships face their hardest tests. Knowing these patterns in advance allows for preparation rather than surprise.",
     ],
     citations: [
-      "Chotai, J. & Adolfsson, R. (2002). Converging evidence suggests that monoamine neurotransmitter turnover in human adults is associated with their season of birth. European Archives of Psychiatry and Clinical Neuroscience.",
-      "Postolache, T.T. et al. (2005). Seasonal variation in mood and behavior. International Review of Psychiatry.",
-    ],
-  },
-  {
-    glyph: "♋\uFE0E",
-    id: "chronotype",
-    title: "Chronotype in Relationships",
-    subtitle: "Why sleep timing shapes compatibility",
-    summary:
-      "Chronotype mismatch is one of the most reliable predictors of relationship friction.",
-    body: [
-      "Chronotype — your natural preference for morning or evening activity — is not a personality choice or a discipline problem. It is primarily genetic (heritability estimated at 50%) with a significant developmental component tied to photoperiodic imprinting at birth and puberty.",
-      "When two people with mismatched chronotypes share a life, they face a structural problem: their windows of peak cognitive and emotional capacity don't align. An early-morning lark and a night owl in the same household are often attempting emotionally demanding conversations at the worst possible time for one of them.",
-      "A 2019 study from the University of California Berkeley found that couples with greater chronotype mismatch reported lower relationship satisfaction, more conflict, and less reported intimacy — not because they were less compatible as people, but because their neurological operating hours were misaligned.",
-      "The solution is not to force chronotype convergence (this almost never works sustainably) but to explicitly design around the mismatch: identifying the overlap window, protecting it for meaningful interaction, and offloading non-urgent communication to asynchronous formats.",
-    ],
-    citations: [
-      "Gunia, B.C. et al. (2014). The effects of sleep on moral awareness. Psychological Science.",
-      "Randler, C. & Saliger, L. (2011). Relationship between chronotype-related traits, sleep, and morality in couples. Sleep & Biological Rhythms.",
-      "Richter, K. et al. (2019). Chronotype and social jetlag in couples. Journal of Sleep Research.",
-    ],
-  },
-  {
-    glyph: "♑\uFE0E",
-    id: "vulnerability",
-    title: "Seasonal Vulnerability Windows",
-    subtitle: "Why energy cycles repeat every year",
-    summary:
-      "Your annual low-energy period is biologically predictable and relationship-relevant.",
-    body: [
-      "The human body responds to seasonal changes in photoperiod, temperature, and UV radiation with measurable physiological shifts: melatonin secretion patterns change, cortisol rhythms shift, immune function cycles, and mood regulation shows seasonal variation in the majority of the population — not just in those with diagnosed Seasonal Affective Disorder.",
-      "For most people, the pattern is a mild annual energy cycle: a period of reduced motivation, social withdrawal, and increased sensitivity that tracks with the low-light months relative to their birth season. This is not depression in most cases — it is a normal biological rhythm that modern indoor life obscures but doesn't eliminate.",
-      "The relationship implication is significant: if both partners hit their low period simultaneously, the relationship loses its natural support structure. Neither person has surplus capacity to hold the other. Conflict during this window is more likely to feel existential than it actually is.",
-      'Couples with offset vulnerability windows have a natural protective mechanism: when one is low, the other tends to be rising or at peak. The goal of surfacing this in geoSync is not to pathologize seasonal lows but to contextualize them — to help partners recognize that "I feel distant from you" in November may be a seasonal signal, not a relationship verdict.',
-    ],
-    citations: [
-      "Wehr, T.A. et al. (2001). Evidence for a biological dawn and dusk in the human circadian timing system. Journal of Physiology.",
-      "Rosenthal, N.E. (2006). Winter Blues: Everything You Need to Know to Beat Seasonal Affective Disorder. Guilford Press.",
+      "Torrey, E.F. et al. (1997). Seasonality of births in schizophrenia and bipolar disorder. Schizophrenia Research.",
+      "Disanto, G. et al. (2016). Month of birth, vitamin D and risk of immune-mediated disease. BMC Medicine.",
     ],
   },
   {
@@ -106,7 +66,7 @@ const SECTIONS = [
     body: [
       "The human circadian system is plastic, not fixed. While the photoperiodic imprint at birth sets a baseline, sustained environmental cues — light exposure, meal timing, social schedules, exercise — can shift the expressed chronotype significantly over years and decades.",
       "This is called behavioral entrainment: the process by which your biological clock synchronizes to external time cues. A natural night owl who has worked early shifts for fifteen years may have genuinely entrained to an earlier rhythm. The original imprint still exists at the level of gene expression, but the expressed behavior may have moved substantially toward the imprint's opposite.",
-      'A useful mental model: your birth profile is your hardware default. Behavioral entrainment is a persistent software setting that overrides the default while it\'s maintained. Neither is more "real" — they operate at different levels. The practical implication is that when the external schedule is removed (retirement, extended leave, sabbatical), many people find themselves drifting back toward their biological default, sometimes to their own surprise.',
+      "A useful mental model: your birth profile is your hardware default. Behavioral entrainment is a persistent software setting that overrides the default while it's maintained. Neither is more 'real' — they operate at different levels. The practical implication is that when the external schedule is removed (retirement, extended leave, sabbatical), many people find themselves drifting back toward their biological default, sometimes to their own surprise.",
       "This is why geoSync includes a calibration step. If your lived experience consistently contradicts what your birth data predicts, your lived experience is the more relevant data point for relationship compatibility purposes. You interact with people from your current expressed state, not your theoretical biological baseline.",
     ],
     citations: [
@@ -135,301 +95,340 @@ const SECTIONS = [
     ],
   },
   {
-    glyph: "✦\uFE0E",
+    glyph: "♎\uFE0E",
     id: "limits",
-    title: "What This Isn't",
-    subtitle: "The honest limits of biophysical profiling",
+    title: "The Limits of This Approach",
+    subtitle: "What geoSync cannot do",
     summary:
-      "Correlations are not destinies. Profiles describe tendencies, not people.",
+      "Biological compatibility is a real phenomenon, but it's not destiny.",
     body: [
-      "Everything in geoSync is based on population-level correlations, not individual determinism. The fact that high-latitude winter births show elevated HPA sensitivity on average does not mean every person born in Helsinki in December has a freeze stress response. Individual variation is enormous. Attachment history, trauma, culture, intentional development, and relationship history all overlay the biophysical baseline.",
-      "The profiles are starting hypotheses, not conclusions. Their value is in giving you a shared vocabulary for patterns that might otherwise go unnamed — not in telling you who someone fundamentally is.",
-      "The compatibility scoring is also explicitly not a verdict. A freeze+fight-flight pairing with a score of 28 on stress response has produced stable, loving relationships — because those people understood the dynamic and built explicit protocols for it. A high-scoring pair can still fail if they take their natural alignment for granted.",
-      "geoSync is a user manual, not a judgment. Use it as a lens, not a label. If something in your profile doesn't fit, trust yourself over the algorithm — you have data the model doesn't.",
+      "geoSync is designed to help you understand pattern-level compatibility: the kinds of friction and flow that tend to emerge when two specific biological profiles interact. It is not designed to predict whether a relationship will succeed, whether you should stay or leave, or whether someone is 'right' for you.",
+      "The model says nothing about values, life goals, communication skills, or the willingness to grow and adapt. These factors often override biological friction. Two people with chronotype conflict and opposing stress responses can build excellent relationships if they have explicit protocols, mutual respect, and shared purpose. Conversely, two people with perfect biological compatibility can destroy each other through dishonesty, contempt, or incompatible life goals.",
+      "Use this tool as a map of likely terrain, not as a verdict. The couples who struggle aren't the incompatible ones. They're the ones who don't know they're incompatible — who keep trying to operate as if their patterns match when they don't, who blame each other for biological differences that are nobody's fault.",
+      "The goal isn't to find someone whose profile matches yours. The goal is to understand the specific kind of mismatch you have, if you have one, and build protocols that protect both of you from its predictable pitfalls. That's work you can do. But you can't do it if you don't know what you're working with.",
     ],
-    citations: [],
+    citations: [
+      "Gottman, J.M. & Silver, N. (2015). The Seven Principles for Making Marriage Work. Harmony Books.",
+      "Johnson, S.M. (2008). Hold Me Tight: Seven Conversations for a Lifetime of Love. Little, Brown and Company.",
+    ],
   },
 ];
 
+const ExpandIcon = styled.span`
+  font-size: ${props => props.theme.fontSizes.lg};
+  color: ${props => props.theme.colors.accent};
+  cursor: pointer;
+  user-select: none;
+  padding: ${props => props.theme.spacing.sm};
+  transition: transform ${props => props.theme.transitions.fast};
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
+const CardHeaderRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+`;
+
+const CardContent = styled.div`
+  animation: fadeIn ${props => props.theme.transitions.normal} ease-out;
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+
 export default function Science() {
-  const navigate = useNavigate();
-  const [open, setOpen] = useState({});
-  function toggle(id) {
-    setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+  const [expandedCards, setExpandedCards] = useState(new Set())
+  const { token } = useAuth()
+  
+  // Determine where to link based on auth state
+  const homeLink = token ? '/dashboard' : '/welcome'
+  
+  const toggleCard = (index) => {
+    const newExpanded = new Set(expandedCards)
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index)
+    } else {
+      newExpanded.add(index)
+    }
+    setExpandedCards(newExpanded)
   }
 
   return (
-    <Page>
+    <Container>
       <TopBar>
-        <BackButton onClick={() => navigate(-1)}>← Back</BackButton>
-        <Logo>{SYMBOLS.earth} geoSync</Logo>
+        <BackLink to={homeLink}>← {token ? 'Dashboard' : 'Home'}</BackLink>
+        <Logo to={homeLink}>{SYMBOLS.earth} geoSync</Logo>
       </TopBar>
 
-      <Content>
-        <PageHeader>
-          <Eyebrow>The Research</Eyebrow>
-          <PageTitle>The Science Behind geoSync</PageTitle>
-          <PageSubtitle>
-            geoSync is built on three bodies of peer-reviewed research:
-            chronobiology, environmental epigenetics, and behavioral
-            neuroscience. This page explains the mechanisms in plain language,
-            with citations for those who want to go deeper.
-          </PageSubtitle>
-          <Disclaimer>
-            {SYMBOLS.star} These are population-level correlations. Individual
-            variation is real and significant. See the final section on limits
-            before drawing any conclusions.
-          </Disclaimer>
-        </PageHeader>
+      <Header>
+        <HeaderGlyph>{SYMBOLS.star}</HeaderGlyph>
+        <HeaderText>
+          <Title>The Science Behind geoSync</Title>
+          <Subtitle>
+            Biophysical relationship compatibility based on chronobiology, not
+            astrology
+          </Subtitle>
+        </HeaderText>
+      </Header>
 
-        <Sections>
-          {SECTIONS.map((section) => (
+      <Intro>
+        <p>
+          geoSync analyzes relationship compatibility through three
+          biophysical dimensions: chronotype (daily energy rhythms), stress
+          response (nervous system patterns under threat), and seasonal
+          vulnerability (predictable energy cycles throughout the year).
+        </p>
+        <p>
+          These patterns are grounded in research from circadian biology,
+          psychophysiology, and environmental epidemiology. They describe
+          tendencies, not destinies — probabilities, not verdicts.
+        </p>
+      </Intro>
+
+      <SectionGrid>
+        {SECTIONS.map((section, index) => {
+          const isExpanded = expandedCards.has(index)
+          
+          return (
             <SectionCard key={section.id}>
-              <SectionHeader onClick={() => toggle(section.id)}>
-                <SectionLeft>
-                  <SectionGlyph>{section.glyph}</SectionGlyph>
-                  <SectionMeta>
-                    <SectionSubtitle>{section.subtitle}</SectionSubtitle>
-                    <SectionTitle>{section.title}</SectionTitle>
-                    <SectionSummary>{section.summary}</SectionSummary>
-                  </SectionMeta>
-                </SectionLeft>
-                <Toggle $open={open[section.id]}>
-                  {open[section.id] ? "−" : "+"}
-                </Toggle>
-              </SectionHeader>
+              <CardHeader>
+                <CardHeaderRow>
+                  <div style={{ display: 'flex', gap: props => props.theme.spacing.md, alignItems: 'flex-start' }}>
+                    <CardGlyph>{section.glyph}</CardGlyph>
+                    <CardTitleArea>
+                      <CardTitle>{section.title}</CardTitle>
+                      <CardSubtitle>{section.subtitle}</CardSubtitle>
+                    </CardTitleArea>
+                  </div>
+                  <ExpandIcon onClick={() => toggleCard(index)}>
+                    {isExpanded ? '−' : '+'}
+                  </ExpandIcon>
+                </CardHeaderRow>
+              </CardHeader>
 
-              {open[section.id] && (
-                <SectionBody>
-                  {section.body.map((para, i) => (
-                    <Para key={i}>{para}</Para>
-                  ))}
-                  {section.citations.length > 0 && (
-                    <Citations>
-                      <CitationsLabel>References</CitationsLabel>
-                      {section.citations.map((c, i) => (
-                        <Citation key={i}>{c}</Citation>
-                      ))}
-                    </Citations>
-                  )}
-                </SectionBody>
+              <CardSummary>{section.summary}</CardSummary>
+
+              {isExpanded && (
+                <CardContent>
+                  <CardBody>
+                    {section.body.map((paragraph, i) => (
+                      <p key={i}>{paragraph}</p>
+                    ))}
+                  </CardBody>
+
+                  <CardCitations>
+                    {section.citations.map((cite, i) => (
+                      <Cite key={i}>{cite}</Cite>
+                    ))}
+                  </CardCitations>
+                </CardContent>
               )}
             </SectionCard>
-          ))}
-        </Sections>
+          )
+        })}
+      </SectionGrid>
 
-        <Footer>
-          <FooterText>
-            Questions about the research or methodology? The field of
-            chronobiology is moving quickly — we update these explanations as
-            significant new findings emerge.
-          </FooterText>
-        </Footer>
-      </Content>
-    </Page>
+      <Footer>
+        <FooterText>
+          This is a living document. Research in chronobiology and relationship
+          science continues to evolve, and geoSync updates accordingly.
+        </FooterText>
+      </Footer>
+    </Container>
   );
 }
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
-const Page = styled.div`
+const Container = styled.div`
   min-height: 100vh;
-  background: ${({ theme }) => theme.colors.bg};
+  background-color: ${({ theme }) => theme.colors.bg};
+  color: ${({ theme }) => theme.colors.textPrimary};
+  max-width: 900px;
+  margin: 0 auto;
+  padding: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: 640px) {
+    padding: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ theme }) => `${theme.spacing.lg} ${theme.spacing["2xl"]}`};
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
+  padding-bottom: ${({ theme }) => theme.spacing.lg};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  @media (max-width: 480px) {
-    padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
-  }
 `;
-const BackButton = styled.button`
+
+const BackLink = styled(Link)`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textMuted};
-  min-height: unset;
+  text-decoration: none;
+
   &:hover {
     color: ${({ theme }) => theme.colors.accent};
   }
 `;
-const Logo = styled.div`
+
+const Logo = styled(Link)`
   font-family: ${({ theme }) => theme.fonts.display};
-  font-size: ${({ theme }) => theme.fontSizes.xl};
+  font-size: ${({ theme }) => theme.fontSizes.lg};
   color: ${({ theme }) => theme.colors.accent};
-`;
+  text-decoration: none;
 
-const Content = styled.main`
-  max-width: 680px;
-  margin: 0 auto;
-  padding: ${({ theme }) => theme.spacing["2xl"]};
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing["2xl"]};
-  @media (max-width: 768px) {
-    padding: ${({ theme }) => theme.spacing.xl};
-  }
-  @media (max-width: 480px) {
-    padding: ${({ theme }) => theme.spacing.lg};
-    gap: ${({ theme }) => theme.spacing.xl};
+  &:hover {
+    color: ${({ theme }) => theme.colors.accentLight};
   }
 `;
 
-const PageHeader = styled.div`
+const Header = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacing.lg};
+  align-items: flex-start;
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
 `;
-const Eyebrow = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+
+const HeaderGlyph = styled.div`
+  font-size: 2rem;
   color: ${({ theme }) => theme.colors.accent};
+  line-height: 1;
+  flex-shrink: 0;
 `;
-const PageTitle = styled.h1`
-  font-size: ${({ theme }) => theme.fontSizes["3xl"]};
+
+const HeaderText = styled.div``;
+
+const Title = styled.h1`
+  font-size: ${({ theme }) => theme.fontSizes["2xl"]};
   color: ${({ theme }) => theme.colors.textPrimary};
-  @media (max-width: 480px) {
-    font-size: ${({ theme }) => theme.fontSizes["2xl"]};
-  }
+  margin-bottom: ${({ theme }) => theme.spacing.sm};
 `;
-const PageSubtitle = styled.p`
+
+const Subtitle = styled.p`
   font-size: ${({ theme }) => theme.fontSizes.md};
   color: ${({ theme }) => theme.colors.textSecondary};
-  line-height: 1.7;
-`;
-const Disclaimer = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
-  font-style: italic;
-  border-left: 2px solid ${({ theme }) => theme.colors.accentDim};
-  padding-left: ${({ theme }) => theme.spacing.md};
-  line-height: 1.6;
 `;
 
-const Sections = styled.div`
+const Intro = styled.div`
+  background: ${({ theme }) => theme.colors.bgCard};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radius.xl};
+  padding: ${({ theme }) => theme.spacing.xl};
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
+
+  p {
+    font-size: ${({ theme }) => theme.fontSizes.md};
+    color: ${({ theme }) => theme.colors.textSecondary};
+    line-height: 1.7;
+    margin-bottom: ${({ theme }) => theme.spacing.md};
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+`;
+
+const SectionGrid = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacing.xl};
+  margin-bottom: ${({ theme }) => theme.spacing["2xl"]};
 `;
 
 const SectionCard = styled.div`
   background: ${({ theme }) => theme.colors.bgCard};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  overflow: hidden;
-  transition: border-color ${({ theme }) => theme.transitions.fast};
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.borderLight};
-  }
-`;
-const SectionHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  border-radius: ${({ theme }) => theme.radius.xl};
   padding: ${({ theme }) => theme.spacing.xl};
-  cursor: pointer;
-  gap: ${({ theme }) => theme.spacing.lg};
-  @media (max-width: 480px) {
+
+  @media (max-width: 640px) {
     padding: ${({ theme }) => theme.spacing.lg};
   }
-`;
-const SectionLeft = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing.lg};
-  align-items: flex-start;
-  flex: 1;
-  min-width: 0;
-`;
-const SectionGlyph = styled.div`
-  font-size: 1.5rem;
-  color: ${({ theme }) => theme.colors.accent};
-  line-height: 1;
-  flex-shrink: 0;
-  margin-top: 2px;
-`;
-const SectionMeta = styled.div`
-  flex: 1;
-  min-width: 0;
-`;
-const SectionSubtitle = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${({ theme }) => theme.colors.accent};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-`;
-const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-  color: ${({ theme }) => theme.colors.textPrimary};
-  margin-bottom: ${({ theme }) => theme.spacing.sm};
-  @media (max-width: 480px) {
-    font-size: ${({ theme }) => theme.fontSizes.md};
-  }
-`;
-const SectionSummary = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.textSecondary};
-  line-height: 1.6;
-`;
-const Toggle = styled.div`
-  font-size: 1.5rem;
-  color: ${({ theme, $open }) =>
-    $open ? theme.colors.accent : theme.colors.textMuted};
-  line-height: 1;
-  flex-shrink: 0;
-  transition: color ${({ theme }) => theme.transitions.fast};
-  user-select: none;
 `;
 
-const SectionBody = styled.div`
-  padding: ${({ theme }) => theme.spacing.xl};
-  padding-top: 0;
+const CardHeader = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg};
-  @media (max-width: 480px) {
-    padding: ${({ theme }) => theme.spacing.lg};
-    padding-top: 0;
-  }
+  gap: ${({ theme }) => theme.spacing.md};
+  align-items: flex-start;
+  margin-bottom: ${({ theme }) => theme.spacing.md};
 `;
-const Para = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.textSecondary};
-  line-height: 1.8;
+
+const CardGlyph = styled.div`
+  font-size: 1.5rem;
+  color: ${({ theme }) => theme.colors.accent};
+  line-height: 1;
+  flex-shrink: 0;
 `;
-const Citations = styled.div`
-  border-top: 1px solid ${({ theme }) => theme.colors.border};
-  padding-top: ${({ theme }) => theme.spacing.lg};
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.sm};
-`;
-const CitationsLabel = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${({ theme }) => theme.colors.textMuted};
+
+const CardTitleArea = styled.div``;
+
+const CardTitle = styled.h2`
+  font-size: ${({ theme }) => theme.fontSizes.xl};
+  color: ${({ theme }) => theme.colors.textPrimary};
   margin-bottom: ${({ theme }) => theme.spacing.xs};
 `;
-const Citation = styled.p`
+
+const CardSubtitle = styled.p`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-style: italic;
+`;
+
+const CardSummary = styled.p`
+  font-size: ${({ theme }) => theme.fontSizes.md};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  line-height: 1.6;
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  padding-bottom: ${({ theme }) => theme.spacing.lg};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+`;
+
+const CardBody = styled.div`
+  p {
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+    color: ${({ theme }) => theme.colors.textSecondary};
+    line-height: 1.8;
+    margin-bottom: ${({ theme }) => theme.spacing.md};
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+`;
+
+const CardCitations = styled.div`
+  margin-top: ${({ theme }) => theme.spacing.lg};
+  padding-top: ${({ theme }) => theme.spacing.lg};
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+`;
+
+const Cite = styled.div`
   font-size: ${({ theme }) => theme.fontSizes.xs};
   color: ${({ theme }) => theme.colors.textMuted};
   font-style: italic;
-  line-height: 1.6;
-  padding-left: ${({ theme }) => theme.spacing.md};
-  border-left: 1px solid ${({ theme }) => theme.colors.border};
+  margin-bottom: ${({ theme }) => theme.spacing.sm};
+  line-height: 1.5;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const Footer = styled.div`
+  text-align: center;
   padding: ${({ theme }) => theme.spacing.xl} 0;
   border-top: 1px solid ${({ theme }) => theme.colors.border};
 `;
+
 const FooterText = styled.p`
   font-size: ${({ theme }) => theme.fontSizes.sm};
   color: ${({ theme }) => theme.colors.textMuted};
   font-style: italic;
-  line-height: 1.6;
 `;

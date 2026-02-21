@@ -1,122 +1,102 @@
-const Connection = require("../models/connection.model");
-const BioProfile = require("../models/bioProfile.model");
-const SeasonalForecast = require("../models/seasonalForecast.model");
-const { derive } = require("../services/bioProfile.service");
-const { generateRange } = require("../services/forecast.service");
+const Connection       = require('../models/connection.model')
+const BioProfile       = require('../models/bioProfile.model')
+const SeasonalForecast = require('../models/seasonalForecast.model')
+const { generateForecast } = require('../services/forecast.service')
 
+// Helper to merge user calibration with derived profile
 function mergeCalibration(derived, userAdjustments) {
-  if (!userAdjustments) return derived;
+  if (!userAdjustments) return derived
   return {
     ...derived,
-    chronotype: userAdjustments.chronotype || derived.chronotype,
+    chronotype:     userAdjustments.chronotype     || derived.chronotype,
     stressBaseline: userAdjustments.stressBaseline || derived.stressBaseline,
-    socialSeason: userAdjustments.socialSeason || derived.socialSeason,
-  };
-}
-
-async function resolveBothProfiles(connection, ownerUserId) {
-  const ownerProfile = await BioProfile.findOne({ userId: ownerUserId });
-  if (!ownerProfile) throw new Error("Owner profile not found");
-  let partnerDerived;
-  if (connection.connectedUserId) {
-    const pp = await BioProfile.findOne({ userId: connection.connectedUserId });
-    if (!pp) throw new Error("Partner profile not found");
-    partnerDerived = mergeCalibration(pp.derived, pp.userAdjustments);
-  } else {
-    const { dob, birthLocation, survey } = connection.manualProfile;
-    partnerDerived = derive(
-      dob,
-      birthLocation.lat,
-      birthLocation.lng,
-      survey || {},
-    );
+    socialSeason:   userAdjustments.socialSeason   || derived.socialSeason
   }
-  const ownerEffective = mergeCalibration(
-    ownerProfile.derived,
-    ownerProfile.userAdjustments,
-  );
-  return { ownerDerived: ownerEffective, partnerDerived };
 }
 
 async function getForecast(req, res) {
   try {
     const connection = await Connection.findOne({
       _id: req.params.connectionId,
-      ownerId: req.user._id,
-    });
-    if (!connection)
-      return res.status(404).json({ error: "Connection not found" });
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
-    const { ownerDerived, partnerDerived } = await resolveBothProfiles(
-      connection,
-      req.user._id,
-    );
-    const forecasts = generateRange(
-      ownerDerived,
-      partnerDerived,
-      month,
-      year,
-      3,
-    );
-    const saved = await Promise.all(
-      forecasts.map((f) =>
-        SeasonalForecast.findOneAndUpdate(
-          { connectionId: connection._id, month: f.month, year: f.year },
-          { ...f, connectionId: connection._id },
-          { upsert: true, new: true },
-        ),
-      ),
-    );
-    res.json(saved);
+      ownerId: req.user._id
+    })
+    if (!connection) return res.status(404).json({ error: 'Connection not found' })
+
+    // Get current forecast or generate if needed
+    const currentDate = new Date()
+    const currentMonth = currentDate.getMonth() + 1
+    const currentYear = currentDate.getFullYear()
+
+    let forecast = await SeasonalForecast.find({
+      connectionId: connection._id,
+      month: { $gte: currentMonth },
+      year: { $gte: currentYear }
+    }).sort({ month: 1, year: 1 }).limit(3)
+
+    // If we don't have 3 months of forecast data, generate it
+    if (forecast.length < 3) {
+      const ownerProfile = await BioProfile.findOne({ userId: req.user._id })
+      if (!ownerProfile) return res.status(400).json({ error: 'Owner profile missing' })
+
+      const ownerEffective = mergeCalibration(ownerProfile.derived, ownerProfile.userAdjustments)
+      let partnerEffective
+
+      if (connection.connectedUserId) {
+        const partnerProfile = await BioProfile.findOne({ userId: connection.connectedUserId })
+        if (!partnerProfile) return res.status(400).json({ error: 'Partner profile missing' })
+        partnerEffective = mergeCalibration(partnerProfile.derived, partnerProfile.userAdjustments)
+      } else {
+        const { dob, birthLocation, survey } = connection.manualProfile
+        const { lat, lng } = birthLocation
+        const { derive } = require('../services/bioProfile.service')
+        partnerEffective = derive(dob, lat, lng, survey || {})
+      }
+
+      const newForecastData = generateForecast(
+        ownerEffective,
+        partnerEffective,
+        currentMonth,
+        currentYear
+      )
+
+      // Clear old forecasts and create new ones
+      await SeasonalForecast.deleteMany({ connectionId: connection._id })
+
+      const createdForecasts = await SeasonalForecast.insertMany(
+        newForecastData.map(f => ({
+          ...f,
+          connectionId: connection._id
+        }))
+      )
+
+      forecast = createdForecasts
+    }
+
+    res.json(forecast)
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message })
   }
 }
 
 async function getForecastRange(req, res) {
   try {
+    const { from, to } = req.query
     const connection = await Connection.findOne({
       _id: req.params.connectionId,
-      ownerId: req.user._id,
-    });
-    if (!connection)
-      return res.status(404).json({ error: "Connection not found" });
-    const { from, to } = req.query;
-    if (!from || !to)
-      return res
-        .status(400)
-        .json({ error: "from and to query params required (YYYY-MM)" });
-    const [fromYear, fromMonth] = from.split("-").map(Number);
-    const [toYear, toMonth] = to.split("-").map(Number);
-    const totalMonths = (toYear - fromYear) * 12 + (toMonth - fromMonth) + 1;
-    if (totalMonths < 1 || totalMonths > 12)
-      return res.status(400).json({ error: "Range must be 1–12 months" });
-    const { ownerDerived, partnerDerived } = await resolveBothProfiles(
-      connection,
-      req.user._id,
-    );
-    const forecasts = generateRange(
-      ownerDerived,
-      partnerDerived,
-      fromMonth,
-      fromYear,
-      totalMonths,
-    );
-    const saved = await Promise.all(
-      forecasts.map((f) =>
-        SeasonalForecast.findOneAndUpdate(
-          { connectionId: connection._id, month: f.month, year: f.year },
-          { ...f, connectionId: connection._id },
-          { upsert: true, new: true },
-        ),
-      ),
-    );
-    res.json(saved);
+      ownerId: req.user._id
+    })
+    if (!connection) return res.status(404).json({ error: 'Connection not found' })
+
+    const forecast = await SeasonalForecast.find({
+      connectionId: connection._id,
+      month: { $gte: parseInt(from) },
+      year: { $gte: parseInt(to) }
+    }).sort({ month: 1, year: 1 })
+
+    res.json(forecast)
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message })
   }
 }
 
-module.exports = { getForecast, getForecastRange };
+module.exports = { getForecast, getForecastRange }

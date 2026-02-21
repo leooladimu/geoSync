@@ -1,300 +1,271 @@
-# ♁ geoSync
+# geoSync ♁
 
-**Your relationships, read through the lens of when and where you began.**
+A biophysical relationship compatibility app that uses birth data and behavioral patterns to generate compatibility insights — moving beyond astrology to science-grounded relationship analysis.
 
-geoSync is a full-stack MERN relationship coaching application that generates biophysical compatibility profiles from date and place of birth. It is grounded in chronobiology, environmental epigenetics, and geomagnetic research — not astrology.
+![geoSync](https://img.shields.io/badge/React-18-blue) ![Node](https://img.shields.io/badge/Node.js-18+-green) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
----
+## 🌍 What is geoSync?
 
-## The Idea
+geoSync analyzes compatibility across three dimensions:
+- **Chronotype Sync** — Daily rhythm alignment and energy patterns
+- **Stress Response** — How you handle pressure and conflict
+- **Seasonal Rhythm** — Vulnerability windows and energy cycles
 
-Most personality frameworks ask who you think you are. geoSync asks something different: what were the environmental conditions present when your nervous system was first being wired?
+## 🧬 The Science
 
-The light cycles at your birth calibrate your brain's master clock. Your birth latitude shapes your prenatal Vitamin D levels and cortisol baseline. The season you arrived in influences your dopamine receptor density and stress response for life. These are not metaphors — they are documented mechanisms in chronobiology and environmental neuroscience.
+Unlike astrology, geoSync is grounded in:
+- **Environmental imprinting** — How birth season and latitude affect neurotransmitter development
+- **Chronobiology** — Natural daily and seasonal energy patterns
+- **Behavioral science** — Stress responses and social preferences
 
-geoSync uses this data to generate a **Biophysical Profile** for each user, then compares two profiles to produce a **Compatibility Report** across three dimensions: chronotype sync, stress response pairing, and seasonal vulnerability alignment. The result isn't a verdict — it's a user manual.
+## ✨ Features
 
----
+- **Responsive Design** — Fully mobile-friendly across all screen sizes
+- **Dark Theme** — Elegant dark UI with warm copper/amber accents
+- **Custom Accordion Selects** — Beautiful animated form controls
+- **Compatibility Reports** — Detailed 3-dimension analysis with strategies
+- **Seasonal Forecasting** — 90-day energy and risk predictions
+- **Coaching Nudges** — Personalized relationship insights
+- **Connection Management** — Add and track multiple relationships
 
-## Features
-
-- **Biophysical Profile Generation** — derived from DOB, birth location (geocoded via Nominatim), and a 4-question calibration survey
-- **Compatibility Scoring** — three-dimension analysis with weighted overall score, archetypes, friction point identification, and circuit-breaker strategies
-- **Seasonal Forecasting** — rolling 90-day energy and mismatch risk forecast for each connection
-- **Coaching Nudges** — contradiction detection engine that surfaces behavioral pattern alerts based on current month, profile, and connection context
-- **Manual Connection Entry** — add connections without requiring them to create an account
-- **Progressive Science Disclosure** — inline "why this?" callouts on data collection screens for curious users, invisible to everyone else
-
----
-
-## Tech Stack
-
-| Layer     | Technology                             |
-| --------- | -------------------------------------- |
-| Frontend  | React, React Router, Styled Components |
-| Backend   | Node.js, Express                       |
-| Database  | MongoDB, Mongoose                      |
-| Auth      | JWT, bcryptjs                          |
-| Geocoding | Nominatim (OpenStreetMap)              |
-| State     | useState / props                       |
-
----
-
-## Project Structure
-
-```
-/geosync
-  /client
-    /src
-      /components
-        /auth          — Shared auth primitives
-        /dashboard     — ProfileSummary, ConnectionsList, ForecastStrip,
-                         NudgesFeed, AddConnectionModal
-        /onboarding    — StepBirthData, StepSurvey, StepReview, Shared
-        /report        — ScoreRing, DimensionPanel, StrategyBlock
-      /hooks           — useAuth
-      /pages           — Welcome, Register, Login, Onboarding,
-                         Dashboard, CompatibilityReport
-      /theme           — index.js (theme + symbols), GlobalStyles.js
-      /utils           — api.js
-  /server
-    /controllers       — auth, profile, connection, compatibility,
-                         forecast, nudge
-    /middleware        — auth.middleware.js
-    /models            — User, BioProfile, Connection, CompatibilityReport,
-                         SeasonalForecast, CoachingNudge
-    /routes            — auth, profile, connection, compatibility,
-                         forecast, nudge
-    /services          — bioProfile, compatibility, forecast,
-                         geocode, nudge
-    server.js
-```
-
----
-
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-
 - Node.js 18+
 - MongoDB (local or Atlas)
+- npm or yarn
 
 ### Installation
 
+1. **Clone the repository**
 ```bash
-# Clone the repo
-git clone https://github.com/yourname/geosync.git
-cd geosync
-
-# Install server dependencies
-cd server && npm install
-
-# Install client dependencies
-cd ../client && npm install
+git clone https://github.com/leooladimu/geoSync.git
+cd geoSync
 ```
 
-### Environment Variables
+2. **Install dependencies**
+```bash
+# Install root dependencies
+npm install
 
-This project uses a small set of environment variables. Keep secrets (database URIs, JWT secrets) server-side only. Client variables must be prefixed with `VITE_` to be embedded by Vite and are visible in the browser.
+# Install client and server dependencies
+cd client && npm install && cd ..
+cd server && npm install && cd ..
+```
 
-Server (create `/server/.env` locally or set as host config vars):
+3. **Set up environment variables**
 
-```env
-# MongoDB connection (local or Atlas)
-MONGO_URI=mongodb://localhost:27017/geosync
-
-# JWT signing secret — DO NOT commit this
-JWT_SECRET=change_this_secret
-
-# Optional: port the server listens on (defaults to 5000)
+Create `server/.env`:
+```bash
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/geosync
+JWT_SECRET=your-super-secret-jwt-key-here
 PORT=5000
 ```
 
-Client (create `/client/.env` locally or set in your static host's build env):
-
-```env
-# Base URL for API requests from the browser (must be an absolute URL in prod)
+Create `client/.env`:
+```bash
 VITE_API_URL=http://localhost:5000/api
 ```
 
-Example production values:
+4. **Start the development servers**
 
-- `MONGO_URI`: `mongodb+srv://<user>:<password>@cluster0.mongodb.net/geosync?retryWrites=true&w=majority`
-- `JWT_SECRET`: a long random string (rotate if accidentally committed)
-- `VITE_API_URL`: `https://api.yourdomain.com/api` or the Render/Railway URL
-
-Where to set these in popular hosts:
-
-- Vercel (frontend): Project → Settings → Environment Variables (set `VITE_*` keys for Production)
-- Render (backend): Service → Environment → Environment Variables (set `MONGO_URI`, `JWT_SECRET`, `PORT`)
-- Netlify: Site settings → Build & deploy → Environment → Environment variables
-- Railway: Project → Variables
-- GitHub Actions: Repository Settings → Secrets & variables → Actions (use these when running the build step)
-
-Security notes:
-
-- Never put private keys, DB passwords, or JWT secrets into `client/.env` or any `VITE_` variable — anything prefixed `VITE_` is bundled into the client and public.
-- If you rotate a secret (e.g. `JWT_SECRET`), redeploy the server and invalidate existing tokens if relevant.
-- If you accidentally commit secrets, remove them from git history and rotate the secrets immediately.
-
-
-### Running Locally
-
+In separate terminals:
 ```bash
-# Terminal 1 — start the API
+# Terminal 1: Start backend
 cd server && npm run dev
 
-# Terminal 2 — start the client
+# Terminal 2: Start frontend
 cd client && npm run dev
 ```
 
-The client runs on `http://localhost:5173` by default.
+This will start:
+- Backend server on http://localhost:5000
+- Frontend on http://localhost:5173
 
----
-
-## API Reference
-
-### Auth
+## 📁 Project Structure
 
 ```
-POST   /api/auth/register
-POST   /api/auth/login
+geoSync/
+├── client/                 # React + Vite frontend
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   │   ├── auth/       # Auth shared components
+│   │   │   ├── dashboard/  # Dashboard widgets
+│   │   │   ├── onboarding/ # Onboarding steps
+│   │   │   └── report/     # Compatibility report parts
+│   │   ├── pages/          # Route pages
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── utils/          # API and utilities
+│   │   └── theme/          # styled-components theme
+│   └── public/
+├── server/                 # Express.js backend
+│   ├── controllers/        # API route handlers
+│   ├── models/             # Mongoose schemas
+│   ├── routes/             # API route definitions
+│   ├── services/           # Business logic
+│   ├── middleware/         # Auth middleware
+│   └── server.js           # Entry point
+└── package.json
 ```
 
-### Profile
+## 🎨 Tech Stack
 
-```
-GET    /api/profile
-POST   /api/profile
-PUT    /api/profile
-```
+### Frontend
+- **React 18** with Hooks
+- **Vite** for fast dev/build
+- **styled-components** for CSS-in-JS
+- **React Router** for navigation
+- **Custom theme system** with breakpoints and design tokens
+
+### Backend
+- **Node.js + Express**
+- **MongoDB + Mongoose**
+- **JWT authentication**
+- **bcrypt** for password hashing
+- **Nominatim** for geocoding
+
+## 🔧 API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create account |
+| POST | `/api/auth/login` | Sign in |
+
+### Profiles
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/profile/create` | Create biophysical profile |
+| GET | `/api/profile/me` | Get current user profile |
+| PUT | `/api/profile/update` | Update profile |
 
 ### Connections
-
-```
-GET    /api/connections
-GET    /api/connections/:id
-POST   /api/connections
-DELETE /api/connections/:id
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/connections` | List all connections |
+| POST | `/api/connections` | Add a connection |
+| DELETE | `/api/connections/:id` | Remove connection |
 
 ### Compatibility
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/compatibility/:connectionId` | Get report |
+| POST | `/api/compatibility/generate/:connectionId` | Regenerate |
 
-```
-GET    /api/compatibility/:connectionId
-POST   /api/compatibility/regenerate/:connectionId
-```
-
-### Forecast
-
-```
-GET    /api/forecast/:connectionId
-GET    /api/forecast/:connectionId/range?from=YYYY-MM&to=YYYY-MM
-```
+### Forecasting
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/forecast/:connectionId` | Get 90-day forecast |
+| GET | `/api/forecast/:connectionId/range` | Get date range |
 
 ### Nudges
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/nudges` | Get active nudges |
+| PATCH | `/api/nudges/:id/dismiss` | Dismiss nudge |
 
+## � Deployment
+
+### Frontend (Vercel)
+1. Connect your GitHub repo to Vercel
+2. Set build command: `cd client && npm run build`
+3. Set output directory: `client/dist`
+4. Add environment variable: `VITE_API_URL=https://your-api.onrender.com/api`
+
+### Backend (Render)
+1. Create a new Web Service on Render
+2. Connect your GitHub repo
+3. Set root directory: `server`
+4. Set build command: `npm install`
+5. Set start command: `npm start`
+6. Add environment variables:
+   - `MONGODB_URI`
+   - `JWT_SECRET`
+   - `PORT=10000`
+
+See [README_ENV.md](./README_ENV.md) for detailed environment variable templates.
+
+## 🔒 Security
+
+- JWT-based authentication with secure tokens
+- Password hashing with bcrypt (10 salt rounds)
+- Protected API routes via auth middleware
+- Environment variables for secrets
+
+## � Pages & Components
+
+### Pages
+| Page | Route | Description |
+|------|-------|-------------|
+| Welcome | `/welcome` | Landing page |
+| Login | `/login` | User sign in |
+| Register | `/register` | Account creation |
+| Onboarding | `/onboarding` | 3-step profile setup |
+| Dashboard | `/dashboard` | Main app interface |
+| Compatibility Report | `/report/:id` | Detailed analysis |
+| The Science | `/science` | Methodology explanation |
+
+### Key Components
+- `ProfileSummary` — User biophysical profile display
+- `ConnectionsList` — Manage relationships
+- `ForecastStrip` — Seasonal predictions timeline
+- `NudgesFeed` — Coaching insights feed
+- `ScoreRing` — Visual compatibility scores
+- `CustomSelect` — Animated accordion dropdown
+
+## 📱 Responsive Breakpoints
+
+| Breakpoint | Size | Target |
+|------------|------|--------|
+| `sm` | 480px | Mobile |
+| `md` | 768px | Tablet |
+| `lg` | 1024px | Desktop |
+| `xl` | 1280px | Large screens |
+
+## 🧪 Development
+
+### Running locally
+```bash
+# Start both servers (from root)
+cd server && npm run dev &
+cd client && npm run dev
 ```
-GET    /api/nudges
-PATCH  /api/nudges/:id/dismiss
+
+### Linting
+```bash
+cd client && npm run lint
 ```
 
----
+### Building for production
+```bash
+cd client && npm run build
+```
 
-## Core Services
+## 📈 Future Roadmap
 
-### `bioProfile.service.js`
+- [ ] User-to-user connections (invite system)
+- [ ] Push notifications for nudges
+- [ ] Mobile app (React Native)
+- [ ] Advanced seasonal analytics dashboard
+- [ ] Relationship coaching chat integration
+- [ ] Export reports as PDF
 
-Takes raw DOB, latitude/longitude, and survey answers and derives the full biophysical profile. All derivation logic is pure functions with no database calls — fully testable in isolation.
+## 🤝 Contributing
 
-Derives: `season`, `lightProfile`, `latitudeTier`, `chronotype`, `stressBaseline`, `vulnerabilityWindow`, `neurotransmitters`
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
-Handles southern hemisphere season inversion.
+## 📄 License
 
-### `compatibility.service.js`
+MIT License — see [LICENSE](./LICENSE) for details.
 
-Takes two derived profiles and scores them across three dimensions:
+## 🙏 Acknowledgments
 
-| Dimension       | Weight | What it measures               |
-| --------------- | ------ | ------------------------------ |
-| Chronotype Sync | 30%    | Daily energy peak alignment    |
-| Stress Response | 40%    | Conflict pattern compatibility |
-| Seasonal Rhythm | 30%    | Vulnerability window overlap   |
-
-Stress response is weighted highest because it governs behavior during conflict — the moments when people have the least capacity to compensate for incompatibility.
-
-### `forecast.service.js`
-
-Computes energy levels (`peak`, `rising`, `dipping`, `low`) for each profile across any month range, derives mismatch risk, and generates specific recommendations and pre-written communication scripts.
-
-### `nudge.service.js`
-
-Detects five behavioral pattern categories:
-
-| Category            | Trigger                                                     |
-| ------------------- | ----------------------------------------------------------- |
-| `withdrawal`        | Freeze profile entering vulnerability window                |
-| `intensity-seeking` | Low dopamine baseline during vulnerability window           |
-| `over-commitment`   | High-light profile in peak summer months                    |
-| `scarcity-lock`     | High-latitude freeze profile (loyalty vs. obligation check) |
-| `optimism-bias`     | High-light lark profile in spring surge                     |
-
-Nudges are deduplicated — one active nudge per category per connection at a time.
+Built with modern web technologies and grounded in chronobiology research.
 
 ---
 
-## The Symbol System
-
-geoSync uses archaic Unicode glyphs throughout the UI as semantic markers, not decoration:
-
-| Glyph | Unicode | Meaning                                         |
-| ----- | ------- | ----------------------------------------------- |
-| ♁     | U+2641  | Earth — the app's core symbol                   |
-| ⊕     | U+2295  | Earth (alt) — used on review/completion screens |
-| ☉     | U+2609  | Sun — high-light profile, chronotype            |
-| ☽     | U+263D  | Crescent moon — low-light profile               |
-| ♈    | U+2648  | Spring equinox                                  |
-| ♋    | U+264B  | Summer solstice                                 |
-| ♎    | U+264E  | Autumn equinox                                  |
-| ♑    | U+2651  | Winter solstice                                 |
-| ✦     | U+2726  | Divider / decorative                            |
-
-The solstice and equinox glyphs serve as season identifiers throughout the app — ♑ next to a winter-born profile, ♈ next to a spring-born one. They are technically zodiacal in origin but predate pop astrology and mark real astronomical moments.
-
----
-
-## Geocoding
-
-Birth location is geocoded at profile creation via the [Nominatim OpenStreetMap API](https://nominatim.openstreetmap.org/). Coordinates are stored permanently in MongoDB.
-
-**Nominatim requirements:**
-
-- Maximum 1 request per second
-- A valid `User-Agent` header with contact information is required — update `geocode.service.js` before deploying
-- No licensing restrictions on stored coordinate data
-
-For production traffic, migrate to [Mapbox](https://www.mapbox.com/) (100,000 free requests/month, permissive licensing) rather than Google Maps (restrictive terms around permanent coordinate storage).
-
----
-
-## Design Notes
-
-**Dark geological palette** — `#0e0f0f` background, amber accent (`#c97d3a`), warm white text. Designed to feel grounded and distinct from the pastel aesthetic common to wellness and astrology apps.
-
-**Typography** — Georgia serif for display/headings (weight and archaic quality), Inter sans-serif for UI and body copy. The contrast between them reinforces the app's dual identity: ancient pattern recognition, modern scientific framing.
-
-**Progressive disclosure** — science callouts on data collection screens are collapsed by default behind a small "why this?" toggle. Users who want the research get it immediately; users who don't never see it.
-
----
-
-## Caveats and Ethics
-
-geoSync describes tendencies, not destinies. The biophysical profiles are derived from documented correlations in peer-reviewed research, but correlation is not determinism. A low compatibility score is a map, not a verdict. The app's coaching language is written to reinforce this consistently.
-
-The app does not use traditional astrological sources, interpretations, or prediction frameworks. The zodiac glyphs used in the UI refer to their original astronomical meanings (solstices and equinoxes) rather than their astrological ones.
-
----
-
-## License
-
-MIT
+**geoSync** ♁ — *Science-grounded relationship compatibility*

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { SYMBOLS } from "../../theme";
+import { SYMBOLS, bp } from "../../theme/theme";
 import {
   AuthInput,
   AuthLabel,
@@ -8,21 +8,32 @@ import {
   AuthButton,
   AuthError,
 } from "../auth/Shared";
-import api from "../../utils/api";
+import { api } from "../../utils/api";
 
 const CONNECTION_TYPES = ["romantic", "family", "platonic", "professional"];
-const EMPTY = { type: "", name: "", dob: "", city: "", state: "", country: "" };
+
+const EMPTY = {
+  type: "",
+  name: "",
+  dob: "",
+  city: "",
+  state: "",
+  country: "",
+};
 
 export default function AddConnectionModal({ token, onAdded, onClose }) {
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
   function handle(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
+
   function isValid() {
     return form.type && form.name && form.dob && form.city && form.country;
   }
+
   async function handleSubmit() {
     if (!isValid()) return setError("Please fill in all required fields");
     setLoading(true);
@@ -51,15 +62,15 @@ export default function AddConnectionModal({ token, onAdded, onClose }) {
       setLoading(false);
     }
   }
+
   return (
     <Overlay onClick={onClose}>
       <Modal onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>{SYMBOLS.star} Add a Connection</ModalTitle>
-          <CloseButton onClick={onClose} aria-label="Close">
-            ✕
-          </CloseButton>
+          <CloseButton onClick={onClose}>✕</CloseButton>
         </ModalHeader>
+
         <AuthField>
           <AuthLabel>Relationship type</AuthLabel>
           <TypeGrid>
@@ -75,6 +86,7 @@ export default function AddConnectionModal({ token, onAdded, onClose }) {
             ))}
           </TypeGrid>
         </AuthField>
+
         <AuthField>
           <AuthLabel>Their name</AuthLabel>
           <AuthInput
@@ -84,6 +96,7 @@ export default function AddConnectionModal({ token, onAdded, onClose }) {
             onChange={handle}
           />
         </AuthField>
+
         <AuthField>
           <AuthLabel>Their date of birth</AuthLabel>
           <AuthInput
@@ -93,6 +106,7 @@ export default function AddConnectionModal({ token, onAdded, onClose }) {
             onChange={handle}
           />
         </AuthField>
+
         <AuthField>
           <AuthLabel>Their birth location</AuthLabel>
           <LocationRow>
@@ -119,7 +133,9 @@ export default function AddConnectionModal({ token, onAdded, onClose }) {
             style={{ marginTop: "0.5rem" }}
           />
         </AuthField>
+
         {error && <AuthError>{error}</AuthError>}
+
         <AuthButton onClick={handleSubmit} disabled={loading || !isValid()}>
           {loading
             ? "Generating report..."
@@ -133,79 +149,106 @@ export default function AddConnectionModal({ token, onAdded, onClose }) {
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  padding: ${({ theme }) => theme.spacing.xl};
-  @media (max-width: 480px) {
-    padding: 0;
-    align-items: flex-end;
+  padding: ${(props) => props.theme.spacing.md};
+
+  @media (min-width: ${bp.md}) {
+    padding: ${(props) => props.theme.spacing.xl};
   }
 `;
+
 const Modal = styled.div`
   width: 100%;
   max-width: 480px;
-  background: ${({ theme }) => theme.colors.bgCard};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.xl};
-  padding: ${({ theme }) => theme.spacing["2xl"]};
+  background-color: ${(props) => props.theme.colors.bgCard};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.radius.lg};
+  padding: ${(props) => props.theme.spacing.lg};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.lg};
+  gap: ${(props) => props.theme.spacing.md};
   max-height: 90vh;
   overflow-y: auto;
-  @media (max-width: 480px) {
-    max-height: 92vh;
-    border-radius: ${({ theme }) =>
-      `${theme.radius.xl} ${theme.radius.xl} 0 0`};
-    padding: ${({ theme }) => theme.spacing.xl}
-      ${({ theme }) => theme.spacing.lg};
+
+  @media (min-width: ${bp.md}) {
+    border-radius: ${(props) => props.theme.radius.xl};
+    padding: ${(props) => props.theme.spacing["2xl"]};
+    gap: ${(props) => props.theme.spacing.lg};
   }
 `;
+
 const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
+
 const ModalTitle = styled.h2`
-  font-size: ${({ theme }) => theme.fontSizes.xl};
-  color: ${({ theme }) => theme.colors.textPrimary};
-`;
-const CloseButton = styled.button`
-  color: ${({ theme }) => theme.colors.textMuted};
-  font-size: ${({ theme }) => theme.fontSizes.md};
-  min-height: unset;
-  &:hover {
-    color: ${({ theme }) => theme.colors.textPrimary};
+  font-size: ${(props) => props.theme.fontSizes.lg};
+  color: ${(props) => props.theme.colors.textPrimary};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.xl};
   }
 `;
+
+const CloseButton = styled.button`
+  color: ${(props) => props.theme.colors.textMuted};
+  font-size: ${(props) => props.theme.fontSizes.md};
+  &:hover {
+    color: ${(props) => props.theme.colors.textPrimary};
+  }
+`;
+
 const TypeGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: ${({ theme }) => theme.spacing.sm};
-`;
-const TypeButton = styled.button`
-  padding: ${({ theme }) => theme.spacing.md};
-  background: ${({ theme, $selected }) =>
-    $selected ? theme.colors.accentDim : theme.colors.bgElevated};
-  color: ${({ theme, $selected }) =>
-    $selected ? theme.colors.accentLight : theme.colors.textSecondary};
-  border: 1px solid
-    ${({ theme, $selected }) =>
-      $selected ? theme.colors.accent : theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.md};
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  transition: all ${({ theme }) => theme.transitions.fast};
-  text-transform: capitalize;
-  min-height: unset;
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.accent};
-    color: ${({ theme }) => theme.colors.textPrimary};
+  gap: ${(props) => props.theme.spacing.xs};
+
+  @media (min-width: ${bp.sm}) {
+    gap: ${(props) => props.theme.spacing.sm};
   }
 `;
+
+const TypeButton = styled.button`
+  padding: ${(props) => props.theme.spacing.sm};
+  background-color: ${(props) =>
+    props.$selected
+      ? props.theme.colors.accentDim
+      : props.theme.colors.bgElevated};
+  color: ${(props) =>
+    props.$selected
+      ? props.theme.colors.accentLight
+      : props.theme.colors.textSecondary};
+  border: 1px solid
+    ${(props) =>
+      props.$selected ? props.theme.colors.accent : props.theme.colors.border};
+  border-radius: ${(props) => props.theme.radius.md};
+  font-size: ${(props) => props.theme.fontSizes.xs};
+  transition: all ${(props) => props.theme.transitions.fast};
+  text-transform: capitalize;
+
+  @media (min-width: ${bp.md}) {
+    padding: ${(props) => props.theme.spacing.md};
+    font-size: ${(props) => props.theme.fontSizes.sm};
+  }
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.accent};
+    color: ${(props) => props.theme.colors.textPrimary};
+  }
+`;
+
 const LocationRow = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.sm};
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.sm};
+
+  @media (min-width: ${bp.sm}) {
+    flex-direction: row;
+  }
 `;

@@ -1,92 +1,236 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import { useAuth } from "../hooks/useAuth";
-import { SYMBOLS } from "../theme";
-import api from "../utils/api";
-import {
-  AuthPage,
-  AuthCard,
-  AuthLogo,
-  AuthTitle,
-  AuthSubtitle,
-  AuthField,
-  AuthLabel,
-  AuthInput,
-  AuthButton,
-  AuthError,
-  AuthFooter,
-  Divider,
-} from "../components/auth/Shared";
+import { SYMBOLS, bp } from "../theme/theme";
+
+const Container = styled.div`
+  min-height: 100vh;
+  background-color: ${props => props.theme.colors.bg};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${props => props.theme.spacing.md};
+
+  @media (min-width: ${bp.md}) {
+    padding: ${props => props.theme.spacing.xl};
+  }
+`
+
+const Card = styled.div`
+  background-color: ${props => props.theme.colors.bgCard};
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.radius.lg};
+  padding: ${props => props.theme.spacing.lg};
+  max-width: 400px;
+  width: 100%;
+
+  @media (min-width: ${bp.md}) {
+    border-radius: ${props => props.theme.radius.xl};
+    padding: ${props => props.theme.spacing.xl};
+  }
+`
+
+const Logo = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.sm};
+  font-family: ${props => props.theme.fonts.display};
+  font-size: ${props => props.theme.fontSizes.lg};
+  color: ${props => props.theme.colors.accent};
+  text-decoration: none;
+  margin-bottom: ${props => props.theme.spacing.lg};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${props => props.theme.fontSizes.xl};
+    margin-bottom: ${props => props.theme.spacing.xl};
+  }
+`
+
+const Title = styled.h1`
+  font-family: ${props => props.theme.fonts.display};
+  font-size: ${props => props.theme.fontSizes.xl};
+  font-weight: 600;
+  color: ${props => props.theme.colors.textPrimary};
+  margin-bottom: ${props => props.theme.spacing.xs};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${props => props.theme.fontSizes["2xl"]};
+    margin-bottom: ${props => props.theme.spacing.sm};
+  }
+`
+
+const Subtitle = styled.p`
+  font-size: ${props => props.theme.fontSizes.sm};
+  color: ${props => props.theme.colors.textSecondary};
+  margin-bottom: ${props => props.theme.spacing.lg};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${props => props.theme.fontSizes.md};
+    margin-bottom: ${props => props.theme.spacing.xl};
+  }
+`
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: ${props => props.theme.spacing.md};
+
+  @media (min-width: ${bp.md}) {
+    gap: ${props => props.theme.spacing.lg};
+  }
+`
+
+const Field = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${props => props.theme.spacing.sm};
+`
+
+const Label = styled.label`
+  font-size: ${props => props.theme.fontSizes.sm};
+  color: ${props => props.theme.colors.textSecondary};
+`
+
+const Input = styled.input`
+  background-color: #e8f0fe;
+  border: none;
+  border-radius: ${props => props.theme.radius.md};
+  padding: ${props => props.theme.spacing.md};
+  font-size: ${props => props.theme.fontSizes.md};
+  color: ${props => props.theme.colors.bg};
+  
+  &::placeholder {
+    color: #666;
+  }
+  
+  &:focus {
+    outline: 2px solid ${props => props.theme.colors.accent};
+  }
+`
+
+const Error = styled.div`
+  color: ${props => props.theme.colors.danger};
+  font-size: ${props => props.theme.fontSizes.sm};
+  text-align: center;
+`
+
+const Button = styled.button`
+  background-color: ${props => props.theme.colors.accent};
+  color: ${props => props.theme.colors.bg};
+  font-family: ${props => props.theme.fonts.body};
+  font-size: ${props => props.theme.fontSizes.md};
+  font-weight: 600;
+  padding: ${props => props.theme.spacing.md};
+  border: none;
+  border-radius: ${props => props.theme.radius.md};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${props => props.theme.spacing.sm};
+  transition: all ${props => props.theme.transitions.fast};
+
+  &:hover:not(:disabled) {
+    background-color: ${props => props.theme.colors.accentLight};
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+`
+
+const ButtonIcon = styled.span`
+  font-size: ${props => props.theme.fontSizes.sm};
+`
+
+const Footer = styled.p`
+  font-size: ${props => props.theme.fontSizes.sm};
+  color: ${props => props.theme.colors.textMuted};
+  text-align: center;
+  margin-top: ${props => props.theme.spacing.xl};
+`
+
+const FooterLink = styled(Link)`
+  color: ${props => props.theme.colors.accent};
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`
 
 export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+
   const { login } = useAuth();
-  function handleChange(e) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }
-  async function handleSubmit(e) {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.email || !form.password)
-      return setError("Email and password are required");
     setLoading(true);
-    setError(null);
+    setError("");
+
     try {
-      const { token, user } = await api.post("/auth/login", form);
-      login(token, user);
-      try {
-        await api.get("/profile", token);
-        navigate("/dashboard");
-      } catch {
-        navigate("/onboarding");
-      }
+      await login(email, password);
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
-  }
+  };
+
   return (
-    <AuthPage>
-      <AuthCard>
-        <AuthLogo>{SYMBOLS.earth} geoSync</AuthLogo>
-        <AuthTitle>Welcome back</AuthTitle>
-        <AuthSubtitle>Sign in to your account.</AuthSubtitle>
-        <form onSubmit={handleSubmit} noValidate>
-          <AuthField>
-            <AuthLabel htmlFor="email">Email</AuthLabel>
-            <AuthInput
-              id="email"
-              name="email"
+    <Container>
+      <Card>
+        <Logo to="/welcome">
+          <span>{SYMBOLS.earth}</span>
+          <span>geoSync</span>
+        </Logo>
+
+        <Title>Welcome back</Title>
+        <Subtitle>Sign in to your account.</Subtitle>
+
+        <Form onSubmit={handleSubmit}>
+          <Field>
+            <Label>Email</Label>
+            <Input
               type="email"
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="jane@gmail.com"
+              required
             />
-          </AuthField>
-          <AuthField>
-            <AuthLabel htmlFor="password">Password</AuthLabel>
-            <AuthInput
-              id="password"
-              name="password"
+          </Field>
+
+          <Field>
+            <Label>Password</Label>
+            <Input
               type="password"
-              placeholder="Your password"
-              value={form.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
             />
-          </AuthField>
-          {error && <AuthError>{error}</AuthError>}
-          <AuthButton type="submit" disabled={loading}>
-            {loading ? "Signing in..." : `Sign In ${SYMBOLS.star}`}
-          </AuthButton>
-        </form>
-        <Divider>{SYMBOLS.star}</Divider>
-        <AuthFooter>
-          Don't have an account? <Link to="/register">Create one</Link>
-        </AuthFooter>
-      </AuthCard>
-    </AuthPage>
+          </Field>
+
+          {error && <Error>{error}</Error>}
+
+          <Button type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
+            {!loading && <ButtonIcon>{SYMBOLS.star}</ButtonIcon>}
+          </Button>
+        </Form>
+
+        <Footer>
+          Don't have an account? <FooterLink to="/register">Create one</FooterLink>
+        </Footer>
+      </Card>
+    </Container>
   );
 }

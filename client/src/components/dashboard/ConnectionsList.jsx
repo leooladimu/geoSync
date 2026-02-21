@@ -1,168 +1,221 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { SYMBOLS } from "../../theme";
-import ForecastStrip from "./ForecastStrip";
+import { api } from "../../utils/api";
+import { bp } from "../../theme/theme";
 
-const TYPE_LABELS = {
-  romantic: "♁ Romantic",
-  family: "♁ Family",
-  platonic: "♁ Platonic",
-  professional: "♁ Professional",
-};
-const RISK_COLORS = { low: "#4a7a5a", moderate: "#c9a03a", high: "#7a3a3a" };
+const ConnectionsGrid = styled.div`
+  display: grid;
+  gap: ${(props) => props.theme.spacing.md};
 
-export default function ConnectionsList({ connections, forecasts, onDelete }) {
-  const [expanded, setExpanded] = useState(null);
-  const navigate = useNavigate();
-  function toggle(id) {
-    setExpanded((prev) => (prev === id ? null : id));
+  @media (min-width: ${bp.md}) {
+    gap: ${(props) => props.theme.spacing.lg};
   }
-  return (
-    <List>
-      {connections.map((connection) => {
-        const name = connection.manualProfile?.name || "Platform User";
-        const forecast = forecasts[connection._id];
-        const mismatch = forecast?.[0]?.mismatchRisk;
-        const isExpanded = expanded === connection._id;
-        return (
-          <ConnectionCard key={connection._id}>
-            <CardHeader onClick={() => toggle(connection._id)}>
-              <CardLeft>
-                <ConnectionGlyph>{SYMBOLS.star}</ConnectionGlyph>
-                <CardInfo>
-                  <ConnectionName>{name}</ConnectionName>
-                  <ConnectionMeta>
-                    <TypeBadge>{TYPE_LABELS[connection.type]}</TypeBadge>
-                    {mismatch && (
-                      <RiskBadge $risk={mismatch}>{mismatch} risk</RiskBadge>
-                    )}
-                  </ConnectionMeta>
-                </CardInfo>
-              </CardLeft>
-              <ExpandToggle>{isExpanded ? "↑" : "↓"}</ExpandToggle>
-            </CardHeader>
-            {isExpanded && (
-              <CardBody>
-                {forecast && <ForecastStrip forecast={forecast} />}
-                <CardActions>
-                  <ActionLink
-                    onClick={() => navigate(`/compatibility/${connection._id}`)}
-                  >
-                    View full report {SYMBOLS.star}
-                  </ActionLink>
-                  <DeleteButton onClick={() => onDelete(connection._id)}>
-                    Remove
-                  </DeleteButton>
-                </CardActions>
-              </CardBody>
-            )}
-          </ConnectionCard>
-        );
-      })}
-    </List>
-  );
-}
+`;
 
-const List = styled.div`
+const ConnectionCard = styled.div`
+  background-color: ${(props) => props.theme.colors.bgCard};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.radius.lg};
+  padding: ${(props) => props.theme.spacing.md};
+  transition: all ${(props) => props.theme.transitions.fast};
+
+  @media (min-width: ${bp.md}) {
+    border-radius: ${(props) => props.theme.radius.xl};
+    padding: ${(props) => props.theme.spacing.lg};
+  }
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.accent};
+    transform: translateY(-2px);
+  }
+`;
+
+const ConnectionHeader = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
-`;
-const ConnectionCard = styled.div`
-  background: ${({ theme }) => theme.colors.bgCard};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  overflow: hidden;
-  transition: border-color ${({ theme }) => theme.transitions.fast};
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.borderLight};
+  gap: ${(props) => props.theme.spacing.sm};
+  margin-bottom: ${(props) => props.theme.spacing.sm};
+
+  @media (min-width: ${bp.sm}) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: ${(props) => props.theme.spacing.md};
   }
 `;
-const CardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${({ theme }) => theme.spacing.lg};
-  cursor: pointer;
-  @media (max-width: 480px) {
-    padding: ${({ theme }) => theme.spacing.md};
+
+const ConnectionInfo = styled.div`
+  flex: 1;
+`;
+
+const ConnectionName = styled.h3`
+  font-size: ${(props) => props.theme.fontSizes.md};
+  color: ${(props) => props.theme.colors.textPrimary};
+  margin-bottom: ${(props) => props.theme.spacing.xs};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.lg};
   }
 `;
-const CardLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing.md};
-  min-width: 0;
-`;
-const ConnectionGlyph = styled.div`
-  font-size: 1.25rem;
-  color: ${({ theme }) => theme.colors.accentDim};
-  flex-shrink: 0;
-`;
-const CardInfo = styled.div`
-  min-width: 0;
-`;
-const ConnectionName = styled.div`
-  font-size: ${({ theme }) => theme.fontSizes.md};
-  color: ${({ theme }) => theme.colors.textPrimary};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-const ConnectionMeta = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing.sm};
-  align-items: center;
-  flex-wrap: wrap;
-`;
-const TypeBadge = styled.span`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
-`;
-const RiskBadge = styled.span`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  padding: 2px 8px;
-  border-radius: ${({ theme }) => theme.radius.round};
-  background: ${({ $risk }) => RISK_COLORS[$risk]}22;
-  color: ${({ $risk }) => RISK_COLORS[$risk]};
-  border: 1px solid ${({ $risk }) => RISK_COLORS[$risk]}44;
+
+const ConnectionType = styled.div`
+  font-size: ${(props) => props.theme.fontSizes.xs};
+  color: ${(props) => props.theme.colors.textMuted};
   text-transform: capitalize;
-  white-space: nowrap;
-`;
-const ExpandToggle = styled.span`
-  color: ${({ theme }) => theme.colors.textMuted};
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  flex-shrink: 0;
-  margin-left: ${({ theme }) => theme.spacing.md};
-`;
-const CardBody = styled.div`
-  padding: ${({ theme }) => theme.spacing.lg};
-  border-top: 1px solid ${({ theme }) => theme.colors.border};
-  @media (max-width: 480px) {
-    padding: ${({ theme }) => theme.spacing.md};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.sm};
   }
 `;
-const CardActions = styled.div`
+
+const Actions = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: ${({ theme }) => theme.spacing.lg};
-`;
-const ActionLink = styled.button`
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.accent};
-  min-height: unset;
-  &:hover {
-    color: ${({ theme }) => theme.colors.accentLight};
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.sm};
+  margin-top: ${(props) => props.theme.spacing.sm};
+
+  @media (min-width: ${bp.sm}) {
+    flex-direction: row;
+    gap: ${(props) => props.theme.spacing.md};
+    margin-top: ${(props) => props.theme.spacing.md};
   }
 `;
+
+const ViewButton = styled(Link)`
+  padding: ${(props) => props.theme.spacing.sm}
+    ${(props) => props.theme.spacing.md};
+  background-color: transparent;
+  color: ${(props) => props.theme.colors.accent};
+  border: 1px solid ${(props) => props.theme.colors.accent};
+  border-radius: ${(props) => props.theme.radius.md};
+  font-size: ${(props) => props.theme.fontSizes.xs};
+  text-decoration: none;
+  text-align: center;
+  transition: all ${(props) => props.theme.transitions.fast};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.sm};
+  }
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.accentDim};
+    color: ${(props) => props.theme.colors.textPrimary};
+  }
+`;
+
 const DeleteButton = styled.button`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
-  min-height: unset;
+  padding: ${(props) => props.theme.spacing.sm}
+    ${(props) => props.theme.spacing.md};
+  background-color: transparent;
+  color: ${(props) => props.theme.colors.danger};
+  border: 1px solid ${(props) => props.theme.colors.danger};
+  border-radius: ${(props) => props.theme.radius.md};
+  font-size: ${(props) => props.theme.fontSizes.xs};
+  cursor: pointer;
+  transition: all ${(props) => props.theme.transitions.fast};
+
+  @media (min-width: ${bp.md}) {
+    font-size: ${(props) => props.theme.fontSizes.sm};
+  }
+
   &:hover {
-    color: ${({ theme }) => theme.colors.danger};
+    background-color: ${(props) => props.theme.colors.danger}22;
   }
 `;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: ${(props) => props.theme.spacing.xl};
+  color: ${(props) => props.theme.colors.textSecondary};
+
+  @media (min-width: ${bp.md}) {
+    padding: ${(props) => props.theme.spacing["2xl"]};
+  }
+`;
+
+const EmptyIcon = styled.div`
+  font-size: 2rem;
+  margin-bottom: ${(props) => props.theme.spacing.sm};
+  opacity: 0.5;
+
+  @media (min-width: ${bp.md}) {
+    font-size: 3rem;
+    margin-bottom: ${(props) => props.theme.spacing.md};
+  }
+`;
+
+export default function ConnectionsList({ token }) {
+  const [connections, setConnections] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadConnections() {
+      try {
+        const data = await api.get("/connections", token);
+        setConnections(data);
+      } catch (err) {
+        console.error("Failed to load connections:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadConnections();
+  }, [token]);
+
+  const handleDeleteConnection = async (connectionId) => {
+    if (!window.confirm("Are you sure you want to delete this connection?")) return;
+
+    try {
+      await api.delete(`/connections/${connectionId}`, token);
+      setConnections((prev) =>
+        prev.filter((conn) => conn._id !== connectionId),
+      );
+    } catch (err) {
+      console.error("Failed to delete connection:", err);
+    }
+  };
+
+  if (loading) return null;
+
+  return (
+    <>
+      <ConnectionsGrid>
+        {connections.length === 0 ? (
+          <EmptyState>
+            <EmptyIcon />
+            <div>No connections yet</div>
+            <div style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>
+              Add your first connection to see your compatibility analysis
+            </div>
+          </EmptyState>
+        ) : (
+          connections.map((connection) => (
+            <ConnectionCard key={connection._id}>
+              <ConnectionHeader>
+                <ConnectionInfo>
+                  <ConnectionName>
+                    {connection.manualProfile?.name || "Unknown Connection"}
+                  </ConnectionName>
+                  <ConnectionType>{connection.type}</ConnectionType>
+                </ConnectionInfo>
+              </ConnectionHeader>
+
+              <Actions>
+                <ViewButton to={`/compatibility/${connection._id}`}>
+                  View Full Report
+                </ViewButton>
+                <DeleteButton
+                  onClick={() => handleDeleteConnection(connection._id)}
+                >
+                  Delete
+                </DeleteButton>
+              </Actions>
+            </ConnectionCard>
+          ))
+        )}
+      </ConnectionsGrid>
+
+    </>
+  );
+}

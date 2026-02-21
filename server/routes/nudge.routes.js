@@ -1,6 +1,12 @@
-const router = require("express").Router();
-const { getNudges, dismissNudge } = require("../controllers/nudge.controller");
-const auth = require("../middleware/auth.middleware");
-router.get("/", auth, getNudges);
-router.patch("/:id/dismiss", auth, dismissNudge);
-module.exports = router;
+const express = require('express')
+const { requireAuth } = require('../middleware/auth.middleware')
+const { getNudges, dismissNudge } = require('../controllers/nudge.controller')
+
+const router = express.Router()
+
+router.use(requireAuth)
+
+router.get('/', getNudges)
+router.patch('/:id/dismiss', dismissNudge)
+
+module.exports = router

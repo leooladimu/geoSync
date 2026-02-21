@@ -1,14 +1,14 @@
-const router = require("express").Router();
-const {
-  createProfile,
-  getMyProfile,
-  updateProfile,
-  updateCalibration,
-} = require("../controllers/profile.controller");
-const auth = require("../middleware/auth.middleware");
-router.get("/", auth, getMyProfile);
-router.post("/", auth, createProfile);
-router.put("/", auth, updateProfile);
-router.patch("/calibration", auth, updateCalibration);
+const express = require('express')
+const { requireAuth } = require('../middleware/auth.middleware')
+const { createProfile, getMyProfile, updateProfile, updateCalibration } = require('../controllers/profile.controller')
 
-module.exports = router;
+const router = express.Router()
+
+router.use(requireAuth)
+
+router.post('/create', createProfile)
+router.get('/me', getMyProfile)
+router.put('/update', updateProfile)
+router.patch('/calibration', updateCalibration)
+
+module.exports = router

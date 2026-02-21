@@ -1,13 +1,14 @@
-const router = require("express").Router();
-const {
-  getConnections,
-  getConnection,
-  createConnection,
-  deleteConnection,
-} = require("../controllers/connection.controller");
-const auth = require("../middleware/auth.middleware");
-router.get("/", auth, getConnections);
-router.get("/:id", auth, getConnection);
-router.post("/", auth, createConnection);
-router.delete("/:id", auth, deleteConnection);
-module.exports = router;
+const express = require('express')
+const { requireAuth } = require('../middleware/auth.middleware')
+const { getConnections, getConnection, createConnection, deleteConnection } = require('../controllers/connection.controller')
+
+const router = express.Router()
+
+router.use(requireAuth)
+
+router.get('/', getConnections)
+router.get('/:id', getConnection)
+router.post('/', createConnection)
+router.delete('/:id', deleteConnection)
+
+module.exports = router

@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { SYMBOLS } from "../theme";
-import api from "../utils/api";
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
+import { useAuth } from '../hooks/useAuth'
+import { SYMBOLS } from '../theme/theme'
 import {
-  AuthPage,
+  AuthContainer,
   AuthCard,
-  AuthLogo,
+  AuthHeader,
   AuthTitle,
   AuthSubtitle,
   AuthField,
@@ -14,113 +14,134 @@ import {
   AuthInput,
   AuthButton,
   AuthError,
-  AuthFooter,
-  Divider,
-} from "../components/auth/Shared";
+  AuthLink
+} from '../components/auth/Shared'
+
+const BackLink = styled(AuthLink)`
+  display: inline-flex;
+  align-items: center;
+  gap: ${props => props.theme.spacing.sm};
+  margin-bottom: ${props => props.theme.spacing.lg};
+  color: ${props => props.theme.colors.textMuted};
+
+  &:hover {
+    color: ${props => props.theme.colors.accent};
+  }
+`
 
 export default function Register() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirm: "",
-  });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  function handleChange(e) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }
-  function validate() {
-    if (!form.name.trim()) return "Name is required";
-    if (!form.email.trim()) return "Email is required";
-    if (form.password.length < 8)
-      return "Password must be at least 8 characters";
-    if (form.password !== form.confirm) return "Passwords do not match";
-    return null;
-  }
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const err = validate();
-    if (err) return setError(err);
-    setLoading(true);
-    setError(null);
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  
+  const { register } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      setLoading(false)
+      return
+    }
+
     try {
-      const { token, user } = await api.post("/auth/register", {
-        name: form.name,
-        email: form.email,
-        password: form.password,
-      });
-      login(token, user);
-      navigate("/onboarding");
+      await register(name, email, password)
+      navigate('/onboarding')
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Registration failed')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
+
   return (
-    <AuthPage>
+    <AuthContainer>
       <AuthCard>
-        <AuthLogo>{SYMBOLS.earth} geoSync</AuthLogo>
-        <AuthTitle>Create your account</AuthTitle>
-        <AuthSubtitle>Your biophysical profile awaits.</AuthSubtitle>
-        <form onSubmit={handleSubmit} noValidate>
+        <BackLink as={Link} to="/welcome">
+          ← Back
+        </BackLink>
+
+        <AuthHeader>
+          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>
+            {SYMBOLS.earth}
+          </div>
+          <AuthTitle>Create Account</AuthTitle>
+          <AuthSubtitle>
+            Start your compatibility journey with geoSync
+          </AuthSubtitle>
+        </AuthHeader>
+
+        <form onSubmit={handleSubmit}>
           <AuthField>
-            <AuthLabel htmlFor="name">Name</AuthLabel>
+            <AuthLabel>Name</AuthLabel>
             <AuthInput
-              id="name"
-              name="name"
               type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              value={form.name}
-              onChange={handleChange}
+              required
             />
           </AuthField>
+
           <AuthField>
-            <AuthLabel htmlFor="email">Email</AuthLabel>
+            <AuthLabel>Email</AuthLabel>
             <AuthInput
-              id="email"
-              name="email"
               type="email"
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              required
             />
           </AuthField>
+
           <AuthField>
-            <AuthLabel htmlFor="password">Password</AuthLabel>
+            <AuthLabel>Password</AuthLabel>
             <AuthInput
-              id="password"
-              name="password"
               type="password"
-              placeholder="At least 8 characters"
-              value={form.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              minLength={6}
             />
           </AuthField>
+
           <AuthField>
-            <AuthLabel htmlFor="confirm">Confirm password</AuthLabel>
+            <AuthLabel>Confirm Password</AuthLabel>
             <AuthInput
-              id="confirm"
-              name="confirm"
               type="password"
-              placeholder="Repeat your password"
-              value={form.confirm}
-              onChange={handleChange}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              minLength={6}
             />
           </AuthField>
+
           {error && <AuthError>{error}</AuthError>}
+
           <AuthButton type="submit" disabled={loading}>
-            {loading ? "Creating account..." : `Create Account ${SYMBOLS.star}`}
+            {loading ? 'Creating account...' : 'Create Account'}
           </AuthButton>
         </form>
-        <Divider>{SYMBOLS.star}</Divider>
-        <AuthFooter>
-          Already have an account? <Link to="/login">Sign in</Link>
-        </AuthFooter>
+
+        <AuthSubtitle>
+          Already have an account? <AuthLink as={Link} to="/login">Sign in</AuthLink>
+        </AuthSubtitle>
       </AuthCard>
-    </AuthPage>
-  );
+    </AuthContainer>
+  )
 }

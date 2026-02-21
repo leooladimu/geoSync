@@ -1,38 +1,91 @@
-import { createGlobalStyle } from "styled-components";
-const GlobalStyles = createGlobalStyle`
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
-  body {
+import { createGlobalStyle } from 'styled-components'
+
+export const GlobalStyles = createGlobalStyle`
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: ${({ theme }) => theme.fonts.body};
     background-color: ${({ theme }) => theme.colors.bg};
     color: ${({ theme }) => theme.colors.textPrimary};
-    font-family: ${({ theme }) => theme.fonts.body};
-    font-size: ${({ theme }) => theme.fontSizes.md};
-    line-height: 1.6; min-height: 100vh;
-    /* Prevent horizontal scroll on mobile */
-    overflow-x: hidden;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  h1, h2, h3, h4 { font-family: ${({ theme }) => theme.fonts.display}; line-height: 1.2; letter-spacing: -0.02em; }
-  /* Responsive type scale */
-  @media (max-width: 480px) {
-    h1 { font-size: 1.75rem; }
-    h2 { font-size: 1.375rem; }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
-  a { color: ${({ theme }) => theme.colors.accent}; text-decoration: none; &:hover { color: ${({ theme }) => theme.colors.accentLight}; } }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-family: ${({ theme }) => theme.fonts.display};
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: ${({ theme }) => theme.colors.accent};
+    text-decoration: none;
+    transition: color ${({ theme }) => theme.transitions.fast};
+
+    &:hover {
+      color: ${({ theme }) => theme.colors.accentLight};
+    }
+  }
+
   button {
-    cursor: pointer; border: none; background: none;
-    font-family: ${({ theme }) => theme.fonts.body};
-    /* Minimum touch target */
-    min-height: 44px;
-    min-width: 44px;
+    font-family: inherit;
+    font-size: inherit;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all ${({ theme }) => theme.transitions.fast};
   }
-  input, select, textarea {
-    font-family: ${({ theme }) => theme.fonts.body};
-    /* Prevent zoom on iOS */
-    font-size: 16px;
+
+  input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+    border: none;
+    background: none;
+    outline: none;
   }
-  img { max-width: 100%; }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: ${({ theme }) => theme.colors.bg}; }
-  ::-webkit-scrollbar-thumb { background: ${({ theme }) => theme.colors.border}; border-radius: 3px; }
-`;
-export default GlobalStyles;
+
+  ul, ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: ${({ theme }) => theme.colors.bg};
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.border};
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${({ theme }) => theme.colors.borderLight};
+  }
+`
