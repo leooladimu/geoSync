@@ -43,13 +43,13 @@ app.use('*', (req, res) => {
 })
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/geosync', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/geosync'
+console.log('Connecting to MongoDB...', mongoUri.includes('mongodb+srv') ? '(Atlas)' : '(local)')
+
+mongoose.connect(mongoUri)
 .then(() => {
   console.log('Connected to MongoDB')
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`)
   })
 })
