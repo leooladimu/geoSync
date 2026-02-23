@@ -17,29 +17,28 @@
   <rect x="0" y="0" width="1200" height="4" fill="url(#accent)"/>
   
   <!-- Earth symbol -->
-  <text x="600" y="200" text-anchor="middle" font-size="100" fill="#c97d3a" font-family="serif">♁</text>
+  <text x="600" y="180" text-anchor="middle" font-size="90" fill="#c97d3a" font-family="serif">♁</text>
   
   <!-- Title -->
-  <text x="600" y="300" text-anchor="middle" font-size="72" fill="#e8e4dc" font-family="Georgia, serif" font-weight="600">geoSync</text>
+  <text x="600" y="280" text-anchor="middle" font-size="72" fill="#e8e4dc" font-family="Georgia, serif" font-weight="600">geoSync</text>
   
   <!-- Subtitle -->
-  <text x="600" y="370" text-anchor="middle" font-size="28" fill="#9a9590" font-family="Inter, Helvetica, sans-serif">Science-Grounded Relationship Compatibility</text>
+  <text x="600" y="345" text-anchor="middle" font-size="26" fill="#9a9590" font-family="Inter, Helvetica, sans-serif">Science-Grounded Relationship Compatibility</text>
   
-  <!-- Dimension pills -->
-  <rect x="260" y="420" width="200" height="44" rx="22" fill="#1c1e1f" stroke="#2a2c2e" stroke-width="1"/>
-  <text x="360" y="448" text-anchor="middle" font-size="16" fill="#c97d3a" font-family="Inter, sans-serif">☉ Chronotype Sync</text>
+  <!-- Three dimension labels centered tightly -->
+  <text x="310" y="430" text-anchor="middle" font-size="18" fill="#c97d3a" font-family="Inter, sans-serif">☉ Chronotype</text>
+  <text x="600" y="430" text-anchor="middle" font-size="18" fill="#c97d3a" font-family="Inter, sans-serif">⚡ Stress Response</text>
+  <text x="890" y="430" text-anchor="middle" font-size="18" fill="#c97d3a" font-family="Inter, sans-serif">♎ Seasonal Rhythm</text>
   
-  <rect x="500" y="420" width="200" height="44" rx="22" fill="#1c1e1f" stroke="#2a2c2e" stroke-width="1"/>
-  <text x="600" y="448" text-anchor="middle" font-size="16" fill="#c97d3a" font-family="Inter, sans-serif">⚡ Stress Response</text>
-  
-  <rect x="740" y="420" width="200" height="44" rx="22" fill="#1c1e1f" stroke="#2a2c2e" stroke-width="1"/>
-  <text x="840" y="448" text-anchor="middle" font-size="16" fill="#c97d3a" font-family="Inter, sans-serif">♎ Seasonal Rhythm</text>
+  <!-- Decorative dots between -->
+  <circle cx="455" cy="425" r="3" fill="#2a2c2e"/>
+  <circle cx="745" cy="425" r="3" fill="#2a2c2e"/>
   
   <!-- Tagline -->
-  <text x="600" y="540" text-anchor="middle" font-size="20" fill="#5c5854" font-family="Inter, sans-serif">Not astrology — environmental imprinting</text>
+  <text x="600" y="520" text-anchor="middle" font-size="20" fill="#5c5854" font-family="Inter, sans-serif">Not astrology — environmental imprinting</text>
   
   <!-- URL -->
-  <text x="600" y="590" text-anchor="middle" font-size="18" fill="#c97d3a" font-family="JetBrains Mono, monospace">geosync.oleo.dev</text>
+  <text x="600" y="570" text-anchor="middle" font-size="18" fill="#c97d3a" font-family="monospace">geosync.oleo.dev</text>
   
   <!-- Accent line bottom -->
   <rect x="0" y="626" width="1200" height="4" fill="url(#accent)"/>
