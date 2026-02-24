@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { SYMBOLS } from '../theme/theme';
-import { useAuth } from '../hooks/useAuth';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import { SYMBOLS } from "../theme/theme";
+import { useAuth } from "../hooks/useAuth";
 
 const SECTIONS = [
   {
@@ -115,13 +115,13 @@ const SECTIONS = [
 ];
 
 const ExpandIcon = styled.span`
-  font-size: ${props => props.theme.fontSizes.lg};
-  color: ${props => props.theme.colors.accent};
+  font-size: ${(props) => props.theme.fontSizes.lg};
+  color: ${(props) => props.theme.colors.accent};
   cursor: pointer;
   user-select: none;
-  padding: ${props => props.theme.spacing.sm};
-  transition: transform ${props => props.theme.transitions.fast};
-  
+  padding: ${(props) => props.theme.spacing.sm};
+  transition: transform ${(props) => props.theme.transitions.fast};
+
   &:hover {
     transform: scale(1.1);
   }
@@ -134,35 +134,39 @@ const CardHeaderRow = styled.div`
 `;
 
 const CardContent = styled.div`
-  animation: fadeIn ${props => props.theme.transitions.normal} ease-out;
-  
+  animation: fadeIn ${(props) => props.theme.transitions.normal} ease-out;
+
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 `;
 
 export default function Science() {
-  const [expandedCards, setExpandedCards] = useState(new Set())
-  const { token } = useAuth()
-  
+  const [expandedCards, setExpandedCards] = useState(new Set());
+  const { token } = useAuth();
+
   // Determine where to link based on auth state
-  const homeLink = token ? '/dashboard' : '/welcome'
-  
+  const homeLink = token ? "/dashboard" : "/welcome";
+
   const toggleCard = (index) => {
-    const newExpanded = new Set(expandedCards)
+    const newExpanded = new Set(expandedCards);
     if (newExpanded.has(index)) {
-      newExpanded.delete(index)
+      newExpanded.delete(index);
     } else {
-      newExpanded.add(index)
+      newExpanded.add(index);
     }
-    setExpandedCards(newExpanded)
-  }
+    setExpandedCards(newExpanded);
+  };
 
   return (
     <Container>
       <TopBar>
-        <BackLink to={homeLink}>← {token ? 'Dashboard' : 'Home'}</BackLink>
+        <BackLink to={homeLink}>← {token ? "Dashboard" : "Home"}</BackLink>
         <Logo to={homeLink}>{SYMBOLS.earth} geoSync</Logo>
       </TopBar>
 
@@ -179,10 +183,10 @@ export default function Science() {
 
       <Intro>
         <p>
-          geoSync analyzes relationship compatibility through three
-          biophysical dimensions: chronotype (daily energy rhythms), stress
-          response (nervous system patterns under threat), and seasonal
-          vulnerability (predictable energy cycles throughout the year).
+          geoSync analyzes relationship compatibility through three biophysical
+          dimensions: chronotype (daily energy rhythms), stress response
+          (nervous system patterns under threat), and seasonal vulnerability
+          (predictable energy cycles throughout the year).
         </p>
         <p>
           These patterns are grounded in research from circadian biology,
@@ -193,13 +197,19 @@ export default function Science() {
 
       <SectionGrid>
         {SECTIONS.map((section, index) => {
-          const isExpanded = expandedCards.has(index)
-          
+          const isExpanded = expandedCards.has(index);
+
           return (
             <SectionCard key={section.id}>
               <CardHeader>
                 <CardHeaderRow>
-                  <div style={{ display: 'flex', gap: props => props.theme.spacing.md, alignItems: 'flex-start' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: (props) => props.theme.spacing.md,
+                      alignItems: "flex-start",
+                    }}
+                  >
                     <CardGlyph>{section.glyph}</CardGlyph>
                     <CardTitleArea>
                       <CardTitle>{section.title}</CardTitle>
@@ -207,7 +217,7 @@ export default function Science() {
                     </CardTitleArea>
                   </div>
                   <ExpandIcon onClick={() => toggleCard(index)}>
-                    {isExpanded ? '−' : '+'}
+                    {isExpanded ? "−" : "+"}
                   </ExpandIcon>
                 </CardHeaderRow>
               </CardHeader>
@@ -230,7 +240,7 @@ export default function Science() {
                 </CardContent>
               )}
             </SectionCard>
-          )
+          );
         })}
       </SectionGrid>
 

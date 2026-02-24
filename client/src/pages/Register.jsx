@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
-import { useAuth } from '../hooks/useAuth'
-import { SYMBOLS } from '../theme/theme'
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { useAuth } from "../hooks/useAuth";
+import { SYMBOLS } from "../theme/theme";
 import {
   AuthContainer,
   AuthCard,
@@ -14,58 +14,58 @@ import {
   AuthInput,
   AuthButton,
   AuthError,
-  AuthLink
-} from '../components/auth/Shared'
+  AuthLink,
+} from "../components/auth/Shared";
 
 const BackLink = styled(AuthLink)`
   display: inline-flex;
   align-items: center;
-  gap: ${props => props.theme.spacing.sm};
-  margin-bottom: ${props => props.theme.spacing.lg};
-  color: ${props => props.theme.colors.textMuted};
+  gap: ${(props) => props.theme.spacing.sm};
+  margin-bottom: ${(props) => props.theme.spacing.lg};
+  color: ${(props) => props.theme.colors.textMuted};
 
   &:hover {
-    color: ${props => props.theme.colors.accent};
+    color: ${(props) => props.theme.colors.accent};
   }
-`
+`;
 
 export default function Register() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  
-  const { register } = useAuth()
-  const navigate = useNavigate()
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      setLoading(false)
-      return
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
-      setLoading(false)
-      return
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
     }
 
     try {
-      await register(name, email, password)
-      navigate('/onboarding')
+      await register(name, email, password);
+      navigate("/onboarding");
     } catch (err) {
-      setError(err.message || 'Registration failed')
+      setError(err.message || "Registration failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <AuthContainer>
@@ -75,7 +75,7 @@ export default function Register() {
         </BackLink>
 
         <AuthHeader>
-          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>
+          <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>
             {SYMBOLS.earth}
           </div>
           <AuthTitle>Create Account</AuthTitle>
@@ -134,14 +134,17 @@ export default function Register() {
           {error && <AuthError>{error}</AuthError>}
 
           <AuthButton type="submit" disabled={loading}>
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? "Creating account..." : "Create Account"}
           </AuthButton>
         </form>
 
         <AuthSubtitle>
-          Already have an account? <AuthLink as={Link} to="/login">Sign in</AuthLink>
+          Already have an account?{" "}
+          <AuthLink as={Link} to="/login">
+            Sign in
+          </AuthLink>
         </AuthSubtitle>
       </AuthCard>
     </AuthContainer>
-  )
+  );
 }

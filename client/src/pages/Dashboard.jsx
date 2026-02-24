@@ -188,7 +188,8 @@ const SectionTitle = styled.h2`
 `;
 
 const AddButton = styled.button`
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
+  padding: ${(props) => props.theme.spacing.xs}
+    ${(props) => props.theme.spacing.sm};
   background-color: ${(props) => props.theme.colors.accent};
   color: ${(props) => props.theme.colors.bg};
   border: none;
@@ -199,7 +200,8 @@ const AddButton = styled.button`
   transition: all ${(props) => props.theme.transitions.fast};
 
   @media (min-width: ${bp.md}) {
-    padding: ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.md};
+    padding: ${(props) => props.theme.spacing.sm}
+      ${(props) => props.theme.spacing.md};
     font-size: ${(props) => props.theme.fontSizes.sm};
   }
 
@@ -294,17 +296,14 @@ export default function Dashboard() {
               {SYMBOLS.star} Add Connection
             </AddButton>
           </SectionHeader>
-          <ConnectionsList 
-            key={connectionsKey} 
-            token={token} 
-          />
+          <ConnectionsList key={connectionsKey} token={token} />
         </Section>
 
         {showAddModal && (
           <AddConnectionModal
             token={token}
             onAdded={() => {
-              setConnectionsKey(k => k + 1);
+              setConnectionsKey((k) => k + 1);
               setShowAddModal(false);
             }}
             onClose={() => setShowAddModal(false)}

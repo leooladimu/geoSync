@@ -92,12 +92,16 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
             <ProfileName>Your Biophysical Profile</ProfileName>
             <ProfileMeta>
               {birthLocation.city}
-              {birthLocation.state ? `, ${birthLocation.state}` : ""} · {dobYear}{" "}
-              · <SeasonLabel>{derived.season}</SeasonLabel>
+              {birthLocation.state ? `, ${birthLocation.state}` : ""} ·{" "}
+              {dobYear} · <SeasonLabel>{derived.season}</SeasonLabel>
             </ProfileMeta>
           </CardTopText>
           <CalibrateButton onClick={() => setShowCalibration((p) => !p)}>
-            {showCalibration ? "Done" : anyCalibrated ? "Recalibrate" : "Calibrate"}
+            {showCalibration
+              ? "Done"
+              : anyCalibrated
+                ? "Recalibrate"
+                : "Calibrate"}
           </CalibrateButton>
         </CardTop>
 
@@ -113,12 +117,17 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
             <TraitLabelRow>
               <TraitLabel>Chronotype</TraitLabel>
               {chronoStatus !== "derived" && (
-                <StatusDot $status={chronoStatus} title={STATUS_LABELS[chronoStatus]} />
+                <StatusDot
+                  $status={chronoStatus}
+                  title={STATUS_LABELS[chronoStatus]}
+                />
               )}
             </TraitLabelRow>
             <TraitValue>{CHRONO_LABELS[chronotype]}</TraitValue>
             {chronoStatus === "adjusted" && (
-              <TraitNote>derived: {CHRONO_LABELS[derived.chronotype]}</TraitNote>
+              <TraitNote>
+                derived: {CHRONO_LABELS[derived.chronotype]}
+              </TraitNote>
             )}
           </Trait>
 
@@ -126,12 +135,17 @@ export default function ProfileSummary({ profile, token, onProfileUpdated }) {
             <TraitLabelRow>
               <TraitLabel>Stress Response</TraitLabel>
               {stressStatus !== "derived" && (
-                <StatusDot $status={stressStatus} title={STATUS_LABELS[stressStatus]} />
+                <StatusDot
+                  $status={stressStatus}
+                  title={STATUS_LABELS[stressStatus]}
+                />
               )}
             </TraitLabelRow>
             <TraitValue>{STRESS_LABELS[stressBaseline]}</TraitValue>
             {stressStatus === "adjusted" && (
-              <TraitNote>derived: {STRESS_LABELS[derived.stressBaseline]}</TraitNote>
+              <TraitNote>
+                derived: {STRESS_LABELS[derived.stressBaseline]}
+              </TraitNote>
             )}
           </Trait>
 

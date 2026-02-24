@@ -175,7 +175,8 @@ export default function ConnectionsList({ token }) {
   }, [token]);
 
   const handleDeleteConnection = async (connectionId) => {
-    if (!window.confirm("Are you sure you want to delete this connection?")) return;
+    if (!window.confirm("Are you sure you want to delete this connection?"))
+      return;
 
     try {
       await api.delete(`/connections/${connectionId}`, token);
@@ -206,8 +207,14 @@ export default function ConnectionsList({ token }) {
               <ConnectionHeader>
                 <ConnectionInfo>
                   <ConnectionName>
-                    {connection.connectedUserId?.name || connection.manualProfile?.name || "Unknown Connection"}
-                    {connection.connectedUserId && <VerifiedBadge title="Matched to a geoSync user">{SYMBOLS.earth}</VerifiedBadge>}
+                    {connection.connectedUserId?.name ||
+                      connection.manualProfile?.name ||
+                      "Unknown Connection"}
+                    {connection.connectedUserId && (
+                      <VerifiedBadge title="Matched to a geoSync user">
+                        {SYMBOLS.earth}
+                      </VerifiedBadge>
+                    )}
                   </ConnectionName>
                   <ConnectionType>{connection.type}</ConnectionType>
                 </ConnectionInfo>
@@ -227,7 +234,6 @@ export default function ConnectionsList({ token }) {
           ))
         )}
       </ConnectionsGrid>
-
     </>
   );
 }
