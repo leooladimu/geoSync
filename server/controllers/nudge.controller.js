@@ -11,6 +11,7 @@ async function getNudges(req, res) {
     const profile = await BioProfile.findOne({ userId })
     if (profile) {
       const connections = await Connection.find({ ownerId: userId })
+        .populate('connectedUserId', 'name')
       await nudgeService.generate(userId, profile, connections)
     }
 
@@ -18,7 +19,11 @@ async function getNudges(req, res) {
       userId,
       dismissed: false
     })
-    .populate('connectionId', 'type manualProfile connectedUserId')
+    .populate({
+      path: 'connectionId',
+      select: 'type manualProfile connectedUserId',
+      populate: { path: 'connectedUserId', select: 'name' }
+    })
     .sort({ createdAt: -1 })
 
     res.json(nudges)

@@ -78,7 +78,7 @@ function NudgeCard({ nudge, onDismiss }) {
     label: nudge.category,
   };
 
-  const connectionName = nudge.connectionId?.manualProfile?.name || null;
+  const connectionName = nudge.connectionId?.connectedUserId?.name || nudge.connectionId?.manualProfile?.name || null;
 
   return (
     <Card>

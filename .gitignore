@@ -36,3 +36,6 @@ coverage/
 .cache/
 .eslintcache
 
+# Accidental root-level package files (real ones live in client/ and server/)
+/package.json
+/package-lock.json

@@ -121,7 +121,7 @@ function isInWindow(month, startMonth, endMonth) {
 }
 
 function connectionName(connection) {
-  return connection?.manualProfile?.name || 'this person'
+  return connection?.connectedUserId?.name || connection?.manualProfile?.name || 'this person'
 }
 
 // ─── Main Export ──────────────────────────────────────────────────────────────

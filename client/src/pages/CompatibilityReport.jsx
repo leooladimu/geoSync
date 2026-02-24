@@ -44,7 +44,7 @@ export default function CompatibilityReport() {
   if (loading) return <LoadingPage>{SYMBOLS.earth} Loading report...</LoadingPage>
   if (error)   return <LoadingPage>Something went wrong: {error}</LoadingPage>
 
-  const name = connection?.manualProfile?.name || 'Your Connection'
+  const name = connection?.connectedUserId?.name || connection?.manualProfile?.name || 'Your Connection'
   const { scores, tiers, archetype, dimensions } = report
 
   return (

@@ -1,5 +1,6 @@
 const Connection          = require('../models/connection.model')
 const BioProfile          = require('../models/bioProfile.model')
+const User                = require('../models/user.model')
 const CompatibilityReport = require('../models/compatibilityReport.model')
 const { derive }          = require('../services/bioProfile.service')
 const { generate }        = require('../services/compatibility.service')
@@ -16,9 +17,51 @@ function mergeCalibration(derived, userAdjustments) {
   }
 }
 
+/**
+ * Check if the manual profile matches an existing user in the database.
+ * Matches on: name (case-insensitive), date of birth, and birth city+country.
+ * Returns the matched user's BioProfile (with userId) or null.
+ */
+async function findMatchingUser(manualProfile, ownerId) {
+  const { name, dob, birthLocation } = manualProfile
+  if (!name || !dob || !birthLocation?.city || !birthLocation?.country) return null
+
+  // Normalise for comparison
+  const normName    = name.trim().toLowerCase()
+  const normCity    = birthLocation.city.trim().toLowerCase()
+  const normCountry = birthLocation.country.trim().toLowerCase()
+  const targetDate  = new Date(dob)
+
+  // Find all BioProfiles whose DOB and birth city/country match
+  // (DOB is stored as a Date, so match by day range)
+  const dayStart = new Date(targetDate)
+  dayStart.setUTCHours(0, 0, 0, 0)
+  const dayEnd = new Date(targetDate)
+  dayEnd.setUTCHours(23, 59, 59, 999)
+
+  const candidates = await BioProfile.find({
+    userId: { $ne: ownerId },                           // exclude self
+    dob:    { $gte: dayStart, $lte: dayEnd }
+  }).populate('userId', 'name')                          // pull in user.name
+
+  for (const bp of candidates) {
+    if (!bp.userId || !bp.userId.name) continue
+
+    const bpCity    = (bp.birthLocation?.city    || '').trim().toLowerCase()
+    const bpCountry = (bp.birthLocation?.country || '').trim().toLowerCase()
+    const bpName    = bp.userId.name.trim().toLowerCase()
+
+    if (bpName === normName && bpCity === normCity && bpCountry === normCountry) {
+      return bp   // matched!
+    }
+  }
+  return null
+}
+
 async function getConnections(req, res) {
   try {
     const connections = await Connection.find({ ownerId: req.user._id })
+      .populate('connectedUserId', 'name')
     res.json(connections)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -30,7 +73,7 @@ async function getConnection(req, res) {
     const connection = await Connection.findOne({
       _id: req.params.id,
       ownerId: req.user._id
-    })
+    }).populate('connectedUserId', 'name')
     if (!connection) return res.status(404).json({ error: 'Connection not found' })
     res.json(connection)
   } catch (err) {
@@ -52,24 +95,40 @@ async function createConnection(req, res) {
     // Resolve the partner's derived profile
     let partnerDerived
     let partnerProfile = null
+    let resolvedConnectedUserId = connectedUserId || null
+    let matchedExistingUser = false
 
     if (connectedUserId) {
-      // Partner is a platform user
+      // Explicitly linked partner (existing flow)
       partnerProfile = await BioProfile.findOne({ userId: connectedUserId })
       if (!partnerProfile) {
         return res.status(400).json({ error: 'Partner has not completed their profile yet' })
       }
       partnerDerived = partnerProfile.derived
+    } else if (manualProfile) {
+      // Manual entry — check if this person is already a user on the platform
+      const matchedProfile = await findMatchingUser(manualProfile, ownerId)
+
+      if (matchedProfile) {
+        // This connection is an existing user — use their real profile
+        partnerProfile = matchedProfile
+        partnerDerived = matchedProfile.derived
+        resolvedConnectedUserId = matchedProfile.userId._id || matchedProfile.userId
+        matchedExistingUser = true
+        console.log(`[connection] Matched manual entry "${manualProfile.name}" to existing user ${resolvedConnectedUserId}`)
+      } else {
+        // No match — derive on the fly from manual entry
+        const { dob, birthLocation, survey } = manualProfile
+        const { lat, lng } = await geocodeBirthLocation(birthLocation)
+        partnerDerived = derive(
+          dob, lat, lng,
+          survey || { stressResponse: 'expand', openness: 'situational', socialSeason: 'summer', conflictStyle: 'process-first' }
+        )
+        // Store lat/lng back into manualProfile
+        manualProfile.birthLocation = { ...birthLocation, lat, lng }
+      }
     } else {
-      // Manual entry — derive on the fly
-      const { dob, birthLocation, survey } = manualProfile
-      const { lat, lng } = await geocodeBirthLocation(birthLocation)
-      partnerDerived = derive(
-        dob, lat, lng,
-        survey || { stressResponse: 'expand', openness: 'situational', socialSeason: 'summer', conflictStyle: 'process-first' }
-      )
-      // Store lat/lng back into manualProfile
-      manualProfile.birthLocation = { ...birthLocation, lat, lng }
+      return res.status(400).json({ error: 'Provide either connectedUserId or manualProfile' })
     }
 
     // Merge calibration with derived profiles
@@ -85,8 +144,8 @@ async function createConnection(req, res) {
     const connection = await Connection.create({
       ownerId,
       type,
-      connectedUserId: connectedUserId || null,
-      manualProfile:   connectedUserId ? undefined : manualProfile,
+      connectedUserId: resolvedConnectedUserId,
+      manualProfile:   resolvedConnectedUserId ? undefined : manualProfile,
     })
 
     // Now create the report with the connectionId
@@ -103,7 +162,7 @@ async function createConnection(req, res) {
     connection.compatibilityReportId = savedReport._id
     await connection.save()
 
-    res.status(201).json({ connection, report: savedReport })
+    res.status(201).json({ connection, report: savedReport, matchedExistingUser })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

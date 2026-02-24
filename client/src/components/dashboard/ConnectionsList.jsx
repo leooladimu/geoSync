@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { api } from "../../utils/api";
-import { bp } from "../../theme/theme";
+import { SYMBOLS, bp } from "../../theme/theme";
 
 const ConnectionsGrid = styled.div`
   display: grid;
@@ -145,6 +145,17 @@ const EmptyIcon = styled.div`
   }
 `;
 
+const VerifiedBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: ${(props) => props.theme.spacing.xs};
+  font-size: 0.75em;
+  color: ${(props) => props.theme.colors.accent};
+  vertical-align: middle;
+  cursor: help;
+`;
+
 export default function ConnectionsList({ token }) {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -195,7 +206,8 @@ export default function ConnectionsList({ token }) {
               <ConnectionHeader>
                 <ConnectionInfo>
                   <ConnectionName>
-                    {connection.manualProfile?.name || "Unknown Connection"}
+                    {connection.connectedUserId?.name || connection.manualProfile?.name || "Unknown Connection"}
+                    {connection.connectedUserId && <VerifiedBadge title="Matched to a geoSync user">{SYMBOLS.earth}</VerifiedBadge>}
                   </ConnectionName>
                   <ConnectionType>{connection.type}</ConnectionType>
                 </ConnectionInfo>
